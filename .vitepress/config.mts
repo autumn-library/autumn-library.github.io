@@ -30,7 +30,7 @@ export default defineConfig({
   srcDir: 'docs',
   
   rewrites: {
-    ':path/:order(\\d+-):page': ':path/:page',
+    ':path/:order(\\d+)-:page': ':path/:page',
     ':path/:page': ':path/:page',
   },
 
