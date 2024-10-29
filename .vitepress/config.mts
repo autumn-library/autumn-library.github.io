@@ -64,7 +64,7 @@ export default defineConfig({
     }),
 
     editLink: {
-      pattern: 'https://github.com/autumn-library/docs/edit/main/docs/:path'
+      pattern: 'https://github.com/autumn-library/docs/edit/master/docs/:path'
     },
     
     socialLinks: [

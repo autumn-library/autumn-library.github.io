@@ -2,7 +2,7 @@
 title: Что такое Autumn?
 ---
 
-![autumn](../../static/cover.png)
+![autumn](../static/cover.png)
 
 # Добро пожаловать!
 
