@@ -29,6 +29,9 @@ export default defineConfig({
 
   srcDir: 'docs',
   
+  // https://vitepress.dev/reference/site-config#base
+  base: "/docs",
+
   rewrites: {
     ':path/:order(\\d+)-:page': ':path/:page',
     ':path/:page': ':path/:page',
