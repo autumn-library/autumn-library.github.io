@@ -1,26 +1,17 @@
 import { DefaultTheme, defineConfig } from 'vitepress'
-// import { getSidebar } from 'vitepress-plugin-auto-sidebar'
 import { glob } from 'glob';
 import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
-import hljs from 'highlight.js';
+
+const bslLanguage = JSON.parse(fs.readFileSync('docs/bsl.json', 'utf8'))
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 
   appearance: 'dark',
   markdown: {
-    // https://github.com/markdown-it/markdown-it#syntax-highlighting
-    highlight(str: string, lang: string, attrs: string) {
-      if (lang && hljs.getLanguage(lang)) {
-        try {
-          return hljs.highlight(str, { language: lang }).value;
-        } catch {}
-      }
-
-      return '';
-    },
+    languages: [bslLanguage],
   },
   
   title: "Autumn Docs",
@@ -60,7 +51,7 @@ export default defineConfig({
       contentRoot: 'docs/',
       contentDirs: [
       { text: 'Начало работы', dir: 'getting-started' },
-      { text: 'Использование фреймворка', dir: 'framework-elements' }
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
       ],
       collapsed: false,
     }),
@@ -81,8 +72,6 @@ export default defineConfig({
   },
 
 })
-
-// migrate this to typescript and DefaultTheme.Sidebar
 
 interface SidebarOptions {
   contentRoot: string;
