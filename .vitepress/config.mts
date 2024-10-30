@@ -32,6 +32,10 @@ export default defineConfig({
   // https://vitepress.dev/reference/site-config#base
   base: "/docs",
 
+  rewrites(id) {
+    return id.replace(/\d+-/, '').replace(/\\/, '/')
+  },
+  
   cleanUrls: true,
 
   locales: {
@@ -86,11 +90,6 @@ interface SidebarOptions {
   collapsed: boolean;
 }
 
-// type _SidebarItem = DefaultTheme.SidebarItem & { order: string }
-interface OrderedSidebarItem extends DefaultTheme.SidebarItem {
-  order: number;
-}
-
 function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): DefaultTheme.SidebarItem[] {
   const sidebar: DefaultTheme.SidebarItem[] = [];
 
@@ -114,7 +113,7 @@ function getSidebarConfig(contentRoot, contentDir, text, collapsed): DefaultThem
 }
 
 function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
-  const sidebarItems: OrderedSidebarItem[] = [];
+  const sidebarItems: DefaultTheme.SidebarItem[] = [];
   const cwd = `${process.cwd()}/${contentRoot}`;
   const files = glob.sync(`${contentDir}/*.md`, { cwd }).sort();
   
@@ -124,20 +123,10 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
     sidebarItems.push(sidebarItem);
   }
 
-  sidebarItems.sort((first, second) => {
-    if (first.order >= second.order) {
-      return 1;
-    } else if (second.order >= first.order) {
-      return -1;
-    } else {
-      return 0;
-    }
-  })
-
   return sidebarItems;
 }
 
-function getSidebarItem(contentRoot, file): OrderedSidebarItem {
+function getSidebarItem(contentRoot, file): DefaultTheme.SidebarItem {
   const fileName = path.basename(file, '.md');
   const pageName = fileName
     .replace(/^\d+-/, '')
@@ -148,10 +137,9 @@ function getSidebarItem(contentRoot, file): OrderedSidebarItem {
   const fileContent = fs.readFileSync(path.join(contentRoot, file), 'utf8');
   const { data: frontmatter } = matter(fileContent);
 
-  const sidebarItem: OrderedSidebarItem = {
+  const sidebarItem: DefaultTheme.SidebarItem = {
     text: frontmatter.title || pageName,
-    link: "/" + file.replace(/\\/, '/'),
-    order: frontmatter.order || Number.MAX_VALUE
+    link: "/" + file.replace(/\d+-/, '').replace(/\\/, '/')
   };
 
   return sidebarItem;

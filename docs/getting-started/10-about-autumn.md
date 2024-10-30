@@ -1,6 +1,5 @@
 ---
 title: Что такое Autumn?
-order: 10
 ---
 
 ![autumn](../static/cover.png)
