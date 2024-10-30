@@ -9,7 +9,7 @@ import hljs from 'highlight.js';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 
-  appearance:'force-dark',
+  appearance: 'dark',
   markdown: {
     // https://github.com/markdown-it/markdown-it#syntax-highlighting
     highlight(str: string, lang: string, attrs: string) {
