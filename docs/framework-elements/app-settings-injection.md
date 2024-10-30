@@ -10,7 +10,7 @@
 
 Конфигурационный файл может быть в виде `json`, `yaml` или `ini` файла, называется `autumn-properties.json`/`autumn-properties.yml`/`autumn-properties.ini` соответственно и ищется ОСенью в каталоге запуска приложения или в подкаталоге `src`.
 
-```1con
+```json
 {
     "Логин": "user",
     "Пароль": "pass",
