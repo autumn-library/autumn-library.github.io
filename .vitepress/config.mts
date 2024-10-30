@@ -32,9 +32,8 @@ export default defineConfig({
   // https://vitepress.dev/reference/site-config#base
   base: "/docs",
 
-  rewrites: {
-    ':path/:order(\\d+)-:page': ':path/:page',
-    ':path/:page': ':path/:page',
+  rewrites(id) {
+    return id.replace(/\d+-/, '').replace(/\\/, '/')
   },
 
   cleanUrls: true,
@@ -135,7 +134,7 @@ function getSidebarItem(contentRoot, file): DefaultTheme.SidebarItem {
 
   const sidebarItem: DefaultTheme.SidebarItem = {
     text: frontmatter.title || pageName,
-    link: file.replace(/\/\d+-/, '/'),
+    link: "/" + file.replace(/\d+-/, '').replace(/\\/, '/'),
     // order: frontmatter.order || 0
   };
 
