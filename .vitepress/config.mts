@@ -44,7 +44,8 @@ export default defineConfig({
 
     nav: [
       { text: 'Главная', link: '/' },
-      { text: 'Документация', link: '/getting-started/about-autumn' }
+      { text: 'Документация', link: '/getting-started/about-autumn' },
+      { text: 'API', link: '/api/' }, // TODO: посмотреть, где красиво был сделан index.md (какая-то из либ), генератор MD в плагине генерирует лишний уровень # в заголовках
     ],
 
     sidebar: getSidebar({
