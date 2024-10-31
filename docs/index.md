@@ -37,14 +37,17 @@ features:
     details: Ядро фреймворка и основной раздел документации. Если вы только начинаете знакомство с ОСенью, то начните с этого раздела.
     icon: 🍂
     link: /getting-started/about-autumn
+    linkText: Документация
   - title: Annotations
     details: Библиотека для работы с аннотациями, может использоваться отдельно от экосистемы ОСени
     icon: 🍁
     link: https://autumn-library.github.io/annotations
+    linkText: Документация
   - title: Autumn-collections
     details: Модуль реализует функциональность прилепляемых коллекций для ОСени.
     icon: 🐿️
     link: https://autumn-library.github.io/autumn-collections
+    linkText: Документация
 
   - title: "Дополнительные модули общего назначения"
     details: "Эта расширяемость также находит отражение в дополнительных модулях, которые расширяют возможности фреймфорка:"
@@ -52,26 +55,32 @@ features:
     details: модуль легкой работы с логами поверх библиотеки logos
     icon: 🪵
     link: https://autumn-library.github.io/autumn-logos
+    linkText: Документация
   - title: Autumn-cli
     details: Модуль для создания консольных приложений поверх библиотеки cli
     icon: 🍄
     link: https://autumn-library.github.io/autumn-cli
+    linkText: Документация
   - title: Autumn-async
     details: Модуль асинхронного исполнения методов.
     icon: 🔀
     link: https://autumn-library.github.io/autumn-async
+    linkText: Документация
   - title: Autumn-synchronized
     details: Модуль для синхронизации исполнения методов.
     icon: 🚦
     link: https://autumn-library.github.io/autumn-synchronized
+    linkText: Документация
   - title: Autumn-event-publisher
     details: Механизм подписок на события и публикации событий.
     icon: 📰
     link: https://autumn-library.github.io/autumn-event-publisher
+    linkText: Документация
   - title: Autumn-killjoy-flavour
     details: Набор аннотаций для ОСени, который поубивает весь кайф.
     icon: ☠️
     link: https://autumn-library.github.io/autumn-killjoy-flavour
+    linkText: Документация
   - title: ""
     details: "To be continued..."
     icon: ⏳️
@@ -83,22 +92,27 @@ features:
     details: Веб-сервер на чистом OneScript.
     icon: 🍷
     link: https://autumn-library.github.io/winow
+    linkText: Документация
   - title: ovm
     details: Менеджер версий OneScript на базе autumn-cli.
     icon: 🦫
     link: https://github.com/oscript-library/ovm
+    linkText: Документация
   - title: Autumn-atm
     details: Демо-приложение со стрима на канале Веселый1С
     icon: 💳
     link: https://github.com/autumn-library/autumn-atm
+    linkText: Документация
   - title: Autumn-dduck
     details: Модуль для работы с DDNS Duck-DNS.
     icon: 🦆
     link: https://autumn-library.github.io/autumn-dduck
+    linkText: Документация
   - title: Сodestatprofiler
     details: Приложение для визуализации результатов замеров производительности OneScript.
     icon: 📊
     link: https://github.com/autumn-library/codestatprofiler
+    linkText: Документация
   - title: ""
     details: "To be continued..."
     icon: ⏳️
