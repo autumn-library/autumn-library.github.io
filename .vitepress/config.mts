@@ -66,10 +66,6 @@ export default defineConfig({
       })
     },
 
-    editLink: {
-      pattern: 'https://github.com/autumn-library/docs/edit/master/docs/:path'
-    },
-
     socialLinks: [
       { icon: 'github', link: 'https://github.com/autumn-library/autumn' },
       {
@@ -105,7 +101,26 @@ export default defineConfig({
           }
         }
       }
-    }
+    },
+
+    editLink: {
+      pattern: 'https://github.com/autumn-library/docs/edit/master/docs/:path',
+      text: 'Редактировать страницу'
+    },
+
+    docFooter: {
+      prev: 'Предыдущая страница',
+      next: 'Следующая страница'
+    },
+
+    outline: { label: 'Содержание страницы' },
+
+    darkModeSwitchLabel: 'Оформление',
+    lightModeSwitchTitle: 'Переключить на светлую тему',
+    darkModeSwitchTitle: 'Переключить на тёмную тему',
+    sidebarMenuLabel: 'Меню',
+    returnToTopLabel: 'Вернуться к началу',
+    langMenuLabel: 'Изменить язык'
 
   },
 
