@@ -9,6 +9,18 @@ const bslLanguage = JSON.parse(fs.readFileSync('docs/bsl.json', 'utf8'))
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 
+  head: [
+    [
+      'script',
+      { async: '', src: 'https://www.googletagmanager.com/gtag/js?id=G-ZHG1MYKGV9' }
+    ],
+    [
+      'script',
+      {},
+      "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-ZHG1MYKGV9');"
+    ]
+  ],
+
   appearance: 'dark',
   markdown: {
     languages: [bslLanguage],
@@ -122,7 +134,7 @@ export default defineConfig({
     returnToTopLabel: 'Вернуться к началу',
     langMenuLabel: 'Изменить язык'
 
-  },
+  }
 
 })
 
