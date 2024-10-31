@@ -48,14 +48,23 @@ export default defineConfig({
       { text: 'API', link: '/api/' }, // TODO: посмотреть, где красиво был сделан index.md (какая-то из либ), генератор MD в плагине генерирует лишний уровень # в заголовках
     ],
 
-    sidebar: getSidebar({
-      contentRoot: 'docs/',
-      contentDirs: [
-      { text: 'Начало работы', dir: 'getting-started' },
-      { text: 'Использование фреймворка', dir: 'framework-elements' },
-      ],
-      collapsed: false,
-    }),
+    sidebar: {
+      "/": getSidebar({
+        contentRoot: 'docs/',
+        contentDirs: [
+        { text: 'Начало работы', dir: 'getting-started' },
+        { text: 'Использование фреймворка', dir: 'framework-elements' },
+        ],
+        collapsed: false,
+      }),
+      "/api/": getSidebar({
+        contentRoot: 'docs/',
+        contentDirs: [
+        { text: 'API', dir: 'api' },
+        ],
+        collapsed: false,
+      })
+    },
 
     editLink: {
       pattern: 'https://github.com/autumn-library/docs/edit/master/docs/:path'
