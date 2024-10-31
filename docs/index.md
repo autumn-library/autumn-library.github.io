@@ -5,6 +5,7 @@ layout: home
 hero:
   name: "Autumn/ОСень"
   text: "Фреймворк компонентных приложений для OneScript"
+  tagline: "Добро пожаловать в уютный мир сообщества Autumn/ОСень - фреймворка для создания приложений на OneScript с применением подходов Dependency Injection и Inversion of Control."
   image:
     src: acorn-ol-shadow.png
     alt: Autumn
@@ -12,12 +13,11 @@ hero:
     - theme: brand
       text: Перейти в документацию
       link: /getting-started/about-autumn
-    - theme: alt
-      text: GitHub
-      link: https://github.com/autumn-library/autumn
-
+  #   - theme: alt
+  #     text: GitHub
+  #     link: https://github.com/autumn-library/autumn
 features:
-  
+
   - title: Компонентный подход
     details: Фреймворк поможет вам собирать ваше приложение из компонентов, без необходимости заниматься их собственным созданием или настройкой
     icon: 🛠️
@@ -27,5 +27,80 @@ features:
   - title: Упрощение поддержки
     details: Компонентный подход позволяет упростить дальнейшую поддержку проекта благодаря сохранению ПЕО (Принципа Единой Ответственности)
     icon: 🙂
----
+  - title: Because its fucking awesome
+    details: ""
+    icon: 🤩
 
+  - title: "Основные модули"
+    details: "В ядро ОСени с самого начала была заложена расширяемость. Само ядро состоит из нескольких связанных между собой модулей:"
+  - title: Autumn/ОСень
+    details: Ядро фреймворка и основной раздел документации. Если вы только начинаете знакомство с ОСенью, то начните с этого раздела.
+    icon: 🍂
+    link: /getting-started/about-autumn
+  - title: Annotations
+    details: Библиотека для работы с аннотациями, может использоваться отдельно от экосистемы ОСени
+    icon: 🍁
+    link: https://autumn-library.github.io/annotations
+  - title: Autumn-collections
+    details: Модуль реализует функциональность прилепляемых коллекций для ОСени.
+    icon: 🐿️
+    link: https://autumn-library.github.io/autumn-collections
+
+  - title: "Дополнительные модули общего назначения"
+    details: "Эта расширяемость также находит отражение в дополнительных модулях, которые расширяют возможности фреймфорка:"
+  - title: Autumn-logos
+    details: модуль легкой работы с логами поверх библиотеки logos
+    icon: 🪵
+    link: https://autumn-library.github.io/autumn-logos
+  - title: Autumn-cli
+    details: Модуль для создания консольных приложений поверх библиотеки cli
+    icon: 🍄
+    link: https://autumn-library.github.io/autumn-cli
+  - title: Autumn-async
+    details: Модуль асинхронного исполнения методов.
+    icon: 🔀
+    link: https://autumn-library.github.io/autumn-async
+  - title: Autumn-synchronized
+    details: Модуль для синхронизации исполнения методов.
+    icon: 🚦
+    link: https://autumn-library.github.io/autumn-synchronized
+  - title: Autumn-event-publisher
+    details: Механизм подписок на события и публикации событий.
+    icon: 📰
+    link: https://autumn-library.github.io/autumn-event-publisher
+  - title: Autumn-killjoy-flavour
+    details: Набор аннотаций для ОСени, который поубивает весь кайф.
+    icon: ☠️
+    link: https://autumn-library.github.io/autumn-killjoy-flavour
+  - title: ""
+    details: "To be continued..."
+    icon: ⏳️
+    link: ""
+
+  - title: "Стоящие внимания"
+    details: "Мы надеемся, что на просторах GitHub начнут появляться и другие библиотеки и приложения на базе ОСени:"
+  - title: Winow
+    details: Веб-сервер на чистом OneScript.
+    icon: 🍷
+    link: https://autumn-library.github.io/winow
+  - title: ovm
+    details: Менеджер версий OneScript на базе autumn-cli.
+    icon: 🦫
+    link: https://github.com/oscript-library/ovm
+  - title: Autumn-atm
+    details: Демо-приложение со стрима на канале Веселый1С
+    icon: 💳
+    link: https://github.com/autumn-library/autumn-atm
+  - title: Autumn-dduck
+    details: Модуль для работы с DDNS Duck-DNS.
+    icon: 🦆
+    link: https://autumn-library.github.io/autumn-dduck
+  - title: Сodestatprofiler
+    details: Приложение для визуализации результатов замеров производительности OneScript.
+    icon: 📊
+    link: https://github.com/autumn-library/codestatprofiler
+  - title: ""
+    details: "To be continued..."
+    icon: ⏳️
+    link: ""
+---
