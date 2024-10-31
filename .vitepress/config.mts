@@ -78,7 +78,12 @@ export default defineConfig({
         },
         link: 'https://t.me/autumn_winow' 
       }
-   ]
+   ],
+
+   search: {
+    provider: 'local'
+   }
+
   },
 
 })
