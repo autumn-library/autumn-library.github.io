@@ -41,6 +41,8 @@ export default defineConfig({
 
   cleanUrls: true,
 
+  lastUpdated: true,
+
   locales: {
     root: {
       label: 'Русский',
