@@ -129,6 +129,10 @@ export default defineConfig({
 
     outline: { label: 'Содержание страницы' },
 
+    lastUpdated: {
+      text: 'Обновлено'
+    },
+
     darkModeSwitchLabel: 'Оформление',
     lightModeSwitchTitle: 'Переключить на светлую тему',
     darkModeSwitchTitle: 'Переключить на тёмную тему',
