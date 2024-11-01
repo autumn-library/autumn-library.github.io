@@ -36,7 +36,7 @@ export default defineConfig({
   base: "/docs",
 
   rewrites(id) {
-    return id.replace(/\d+-/, '').replace(/\\/, '/')
+    return id.replace(/\d+-/, '').replaceAll('\\', '/')
   },
 
   cleanUrls: true,
@@ -74,7 +74,7 @@ export default defineConfig({
       "/api/": getSidebar({
         contentRoot: 'docs/',
         contentDirs: [
-          { text: 'API', dir: 'api' },
+          { text: 'API', dir: 'api', link: 'api/index.md' },
         ],
         collapsed: false,
       })
@@ -146,7 +146,7 @@ export default defineConfig({
 
 interface SidebarOptions {
   contentRoot: string;
-  contentDirs: { text: string; dir: string }[];
+  contentDirs: { text: string; dir: string; link: string }[];
   collapsed: boolean;
 }
 
@@ -154,7 +154,7 @@ function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): De
   const sidebar: DefaultTheme.SidebarItem[] = [];
 
   for (const contentDir of contentDirs) {
-    const sidebarConfig = getSidebarConfig(contentRoot, contentDir.dir, contentDir.text, collapsed);
+    const sidebarConfig = getSidebarConfig(contentRoot, contentDir.dir, contentDir.text, collapsed, contentDir.link);
     sidebar.push(sidebarConfig);
   }
 
@@ -162,23 +162,38 @@ function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): De
 }
 
 
-function getSidebarConfig(contentRoot, contentDir, text, collapsed): DefaultTheme.SidebarItem {
+function getSidebarConfig(contentRoot, contentDir, text, collapsed, link= ''): DefaultTheme.SidebarItem {
   const sidebarConfig: DefaultTheme.SidebarItem = {
     text,
-    items: getSidebarItems(contentRoot, contentDir),
-    collapsed
+    items: getSidebarItems(contentRoot, contentDir, link),
+    collapsed,
+    link: "/" + link
   };
 
   return sidebarConfig;
 }
 
-function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
+function getSidebarItems(contentRoot, contentDir, rootLink): DefaultTheme.SidebarItem[] {
   const sidebarItems: DefaultTheme.SidebarItem[] = [];
   const cwd = `${process.cwd()}/${contentRoot}`;
+
+  glob.sync(`${contentDir}/`, { cwd })
+
+  const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
+  for (const dirIndex in dirs) {
+    const dir = dirs[dirIndex];
+    sidebarItems.push({
+      text: path.basename(dir),
+      items: getSidebarItems(contentRoot, dir.replaceAll('\\', '/')),
+      collapsed: false
+    });
+  }
+
   const files = glob.sync(`${contentDir}/*.md`, { cwd }).sort();
 
   for (const path in files) {
     const file = files[path];
+    if (file.replaceAll('\\', '/') == rootLink) continue;
     const sidebarItem = getSidebarItem(contentRoot, file);
     sidebarItems.push(sidebarItem);
   }
@@ -186,7 +201,7 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
   return sidebarItems;
 }
 
-function getSidebarItem(contentRoot, file): DefaultTheme.SidebarItem {
+function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
   const fileName = path.basename(file, '.md');
   const pageName = fileName
     .replace(/^\d+-/, '')
@@ -199,7 +214,7 @@ function getSidebarItem(contentRoot, file): DefaultTheme.SidebarItem {
 
   const sidebarItem: DefaultTheme.SidebarItem = {
     text: frontmatter.title || pageName,
-    link: "/" + file.replace(/\d+-/, '').replace(/\\/, '/')
+    link: "/" + file.replace(/\d+-/, '').replaceAll('\\', '/')
   };
 
   return sidebarItem;
