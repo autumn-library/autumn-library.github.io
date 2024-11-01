@@ -59,7 +59,7 @@ export default defineConfig({
     nav: [
       { text: 'Главная', link: '/' },
       { text: 'Документация', link: '/getting-started/about-autumn' },
-      { text: 'API', link: '/api/' }, // TODO: посмотреть, где красиво был сделан index.md (какая-то из либ), генератор MD в плагине генерирует лишний уровень # в заголовках
+      { text: 'API', link: '/api/Autumn' }, // TODO: посмотреть, где красиво был сделан index.md (какая-то из либ), генератор MD в плагине генерирует лишний уровень # в заголовках
     ],
 
     sidebar: {
@@ -67,14 +67,14 @@ export default defineConfig({
         contentRoot: 'docs/',
         contentDirs: [
           { text: 'Начало работы', dir: 'getting-started' },
-          { text: 'Использование фреймворка', dir: 'framework-elements' },
+          { text: 'Использование фреймворка', dir: 'framework-elements' }
         ],
         collapsed: false,
       }),
       "/api/": getSidebar({
         contentRoot: 'docs/',
         contentDirs: [
-          { text: 'API', dir: 'api', link: 'api/index.md' },
+          { text: 'Autumn', dir: 'api/Autumn' }
         ],
         collapsed: false,
       })
@@ -146,7 +146,7 @@ export default defineConfig({
 
 interface SidebarOptions {
   contentRoot: string;
-  contentDirs: { text: string; dir: string; link: string }[];
+  contentDirs: { text: string; dir: string; }[];
   collapsed: boolean;
 }
 
@@ -154,7 +154,7 @@ function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): De
   const sidebar: DefaultTheme.SidebarItem[] = [];
 
   for (const contentDir of contentDirs) {
-    const sidebarConfig = getSidebarConfig(contentRoot, contentDir.dir, contentDir.text, collapsed, contentDir.link);
+    const sidebarConfig = getSidebarConfig(contentRoot, contentDir.dir, contentDir.text, collapsed);
     sidebar.push(sidebarConfig);
   }
 
@@ -162,38 +162,43 @@ function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): De
 }
 
 
-function getSidebarConfig(contentRoot, contentDir, text, collapsed, link= ''): DefaultTheme.SidebarItem {
+function getSidebarConfig(contentRoot, contentDir, text, collapsed): DefaultTheme.SidebarItem {
+  const indexPath = `${contentDir}/index.md`.replaceAll('\\', '/');
+  const link = fs.existsSync(`${contentRoot}${indexPath}`) ? `/${indexPath}` : ''
+
   const sidebarConfig: DefaultTheme.SidebarItem = {
     text,
-    items: getSidebarItems(contentRoot, contentDir, link),
+    items: getSidebarItems(contentRoot, contentDir),
     collapsed,
-    link: "/" + link
+    link: link
   };
 
   return sidebarConfig;
 }
 
-function getSidebarItems(contentRoot, contentDir, rootLink): DefaultTheme.SidebarItem[] {
+function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
   const sidebarItems: DefaultTheme.SidebarItem[] = [];
   const cwd = `${process.cwd()}/${contentRoot}`;
-
-  glob.sync(`${contentDir}/`, { cwd })
 
   const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
   for (const dirIndex in dirs) {
     const dir = dirs[dirIndex];
+    const indexPath = `${dir}/index.md`.replaceAll('\\', '/');
+    const link = fs.existsSync(`${contentRoot}/${indexPath}`) ? `/${indexPath}` : ''
+
     sidebarItems.push({
       text: path.basename(dir),
       items: getSidebarItems(contentRoot, dir.replaceAll('\\', '/')),
-      collapsed: false
+      collapsed: false,
+      link: link
     });
   }
 
   const files = glob.sync(`${contentDir}/*.md`, { cwd }).sort();
 
-  for (const path in files) {
-    const file = files[path];
-    if (file.replaceAll('\\', '/') == rootLink) continue;
+  for (const fileIndex in files) {
+    const file = files[fileIndex];
+    if (path.basename(file) == 'index.md') continue;
     const sidebarItem = getSidebarItem(contentRoot, file);
     sidebarItems.push(sidebarItem);
   }
