@@ -18,7 +18,8 @@ export default defineConfig({
       'script',
       {},
       "window.dataLayer = window.dataLayer || [];\nfunction gtag(){dataLayer.push(arguments);}\ngtag('js', new Date());\ngtag('config', 'G-ZHG1MYKGV9');"
-    ]
+    ],
+    ['link', { rel: 'icon', href: '/docs/favicon.ico' }]
   ],
 
   appearance: 'dark',
@@ -51,6 +52,10 @@ export default defineConfig({
 
   },
 
+  ignoreDeadLinks: [
+    /^https?:\/\/localhost/
+  ],
+
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
 
@@ -67,7 +72,8 @@ export default defineConfig({
         contentRoot: 'docs/',
         contentDirs: [
           { text: 'Начало работы', dir: 'getting-started' },
-          { text: 'Использование фреймворка', dir: 'framework-elements' }
+          { text: 'Использование фреймворка', dir: 'framework-elements' },
+          { text: 'Winow', dir: 'winow' }
         ],
         collapsed: false,
       }),
