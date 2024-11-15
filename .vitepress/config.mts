@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 
 const bslLanguage = JSON.parse(fs.readFileSync('docs/bsl.json', 'utf8'))
+const contentRoot = 'docs/';
 
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
@@ -63,27 +64,39 @@ export default defineConfig({
 
     nav: [
       { text: 'Главная', link: '/' },
-      { text: 'Документация', link: '/getting-started/about-autumn' },
-      { text: 'API', link: '/api/Autumn' }, // TODO: посмотреть, где красиво был сделан index.md (какая-то из либ), генератор MD в плагине генерирует лишний уровень # в заголовках
+      { 
+        text: 'Документация',
+        items: [
+          { text: 'autumn', link: '/getting-started/about-autumn' },
+          { text: 'winow', link: '/winow/' },
+        ]
+       },
+      { text: 'API', link: '/api/autumn' },
     ],
 
     sidebar: {
       "/": getSidebar({
-        contentRoot: 'docs/',
+        contentRoot,
         contentDirs: [
           { text: 'Начало работы', dir: 'getting-started' },
           { text: 'Использование фреймворка', dir: 'framework-elements' },
-          { text: 'Winow', dir: 'winow' }
         ],
         collapsed: false,
       }),
       "/api/": getSidebar({
-        contentRoot: 'docs/',
+        contentRoot,
         contentDirs: [
-          { text: 'Autumn', dir: 'api/Autumn' }
+          { text: 'autumn', dir: 'api/autumn' }
         ],
         collapsed: false,
-      })
+      }),
+      "/winow/": getSidebar({
+        contentRoot,
+        contentDirs: [
+          // { text: 'winow', dir: 'winow' }
+        ],
+        collapsed: false,
+      }),
     },
 
     socialLinks: [
