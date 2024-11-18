@@ -71,22 +71,22 @@ export default defineConfig({
           { text: 'winow', link: '/winow/' },
         ]
        },
-      { text: 'API', link: '/api/autumn' },
+      { 
+        text: 'API', 
+        items: [
+          { text: 'autumn', link: '/api/autumn/' },
+          { text: 'annotations', link: '/api/annotations/' },
+        ]
+       },
     ],
 
     sidebar: {
+      // products
       "/": getSidebar({
         contentRoot,
         contentDirs: [
           { text: 'Начало работы', dir: 'getting-started' },
           { text: 'Использование фреймворка', dir: 'framework-elements' },
-        ],
-        collapsed: false,
-      }),
-      "/api/": getSidebar({
-        contentRoot,
-        contentDirs: [
-          { text: 'autumn', dir: 'api/autumn' }
         ],
         collapsed: false,
       }),
@@ -97,6 +97,22 @@ export default defineConfig({
         ],
         collapsed: false,
       }),
+      // api
+      "/api/autumn": getSidebar({
+        contentRoot,
+        contentDirs: [
+          { text: 'autumn', dir: 'api/autumn' }
+        ],
+        collapsed: false,
+      }),
+      "/api/annotations": getSidebar({
+        contentRoot,
+        contentDirs: [
+          { text: 'annotations', dir: 'api/annotations' }
+        ],
+        collapsed: false,
+      }),
+
     },
 
     socialLinks: [
