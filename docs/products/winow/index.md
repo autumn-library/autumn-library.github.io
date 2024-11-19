@@ -98,7 +98,7 @@ opm install winow
 
 И чудо свершилось:
 
-![hw1](../static/winow/hw1.png)
+![hw1](../../static/winow/hw1.png)
 
 ## Передача параметров в строке запроса.
 
@@ -139,7 +139,7 @@ http://localhost:3333/greeter/getparams?name=Nikita&familia=ivanchenko
 
 Опять запускаем ```ПриветМир.os```, и идем теперь вот так http://localhost:3333/greeter/getparams?name=Никита&familia=Иванченко
 
-![hw2](../static/winow/hw2.png)
+![hw2](../../static/winow/hw2.png)
 
 Снова полный успех! Но давайте подробней остановимся на каждом этапе этого чуда.
 
@@ -327,7 +327,7 @@ http://localhost:3333/greeter/calc/<operation>/<first>/<second>/
 
 И в ответ перед нами будет красоваться
 
-![hw3](../static/winow/hw3.png)
+![hw3](../../static/winow/hw3.png)
 
 На самом деле, тут все очень просто. Когда мы объявляем точку маршрута ```&ТочкаМаршрута("calc")```, все что дальше в пути через ```/``` будет любезно складываться в массив ```ПараметрыЗапросаПорядковые```. А что делать с массивами, вы и без меня знаете.
 
@@ -397,9 +397,9 @@ http://localhost:3333/greeter/calc/<operation>/<first>/<second>/
 
 :::
 
-![hw4](../static/winow/hw4.png)
+![hw4](../../static/winow/hw4.png)
 
-![hw5](../static/winow/hw5.png)
+![hw5](../../static/winow/hw5.png)
 
 Теперь разберемся, что тут произошло. Не буду останавливаться на описании HTML тегов, для этого в интернете сайтов больше, чем звезд на небе.
 
@@ -470,9 +470,9 @@ http://localhost:3333/greeter/calc/<operation>/<first>/<second>/
 
 :::
 
-![hw6](../static/winow/hw6.png)
+![hw6](../../static/winow/hw6.png)
 
-![hw7](../static/winow/hw7.png)
+![hw7](../../static/winow/hw7.png)
 
 Еще раз, не забываем, что куки хранятся на стороне браузера.
 
@@ -517,9 +517,9 @@ http://localhost:3333/greeter/calc/<operation>/<first>/<second>/
 
 :::
 
-![hw8](../static/winow/hw8.png)
+![hw8](../../static/winow/hw8.png)
 
-![hw9](../static/winow/hw9.png)
+![hw9](../../static/winow/hw9.png)
 
 ## Публикация статичных файлов.
 
@@ -550,7 +550,7 @@ app/files/zl1.jpg
 app/files/fun/zl2.jpg
 ```
 
-![hw10](../static/winow/hw10.png)
+![hw10](../../static/winow/hw10.png)
 
 Как видим, по заданному пути теперь доступны файлы из каталога, при чем с сохранением внутренней иерархии каталога файлов.
 
@@ -692,7 +692,7 @@ app/files/fun/zl2.jpg
 
 Это полноценный код на 1С. Можно объявлять переменные, взаимодействовать с ```Модель```, использовать управляющие блоки(Циклы, Условия)
 
-![hw11](../static/winow/hw11.png)
+![hw11](../../static/winow/hw11.png)
 
 ## Обработчики шаблонов.
 
@@ -839,7 +839,7 @@ app/files/fun/zl2.jpg
 ```
 
 ::: 
-![hw12](../static/winow/hw12.png)
+![hw12](../../static/winow/hw12.png)
 
 ## Общее отображение контрола.
 
@@ -1147,7 +1147,7 @@ app/files/fun/zl2.jpg
 
 Вот результат наших трудов.
 
-![ws](../static/winow/ws-chat.gif)
+![ws](../../static/winow/ws-chat.gif)
 
 ## Работа с механизмом server-sent events.
 
@@ -1246,7 +1246,7 @@ addComment(e.data);
 
 Пример реактивного интерфейса на server sent events
 
-![sse](../static/winow/sse.gif)
+![sse](../../static/winow/sse.gif)
 
 ## Использование cli
 
