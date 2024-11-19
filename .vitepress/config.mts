@@ -38,7 +38,11 @@ export default defineConfig({
   base: "/docs",
 
   rewrites(id) {
-    return id.replace(/\d+-/, '').replaceAll('\\', '/')
+    return id
+      .replace(/\d+-/, '')                 // удаление префикса сортировки
+      .replaceAll('\\', '/')               // замена обратных виндовых слешей на прямые
+      .replaceAll('products/autumn/', '')  // подмена пути products/autumn на корень
+      .replaceAll('products/', '');        // удаление префикса products
   },
 
   cleanUrls: true,
@@ -69,6 +73,7 @@ export default defineConfig({
         items: [
           { text: 'autumn', link: '/getting-started/about-autumn' },
           { text: 'winow', link: '/winow/' },
+          { text: 'annotations', link: '/annotations/' },
         ]
        },
       { 
@@ -83,17 +88,24 @@ export default defineConfig({
     sidebar: {
       // products
       "/": getSidebar({
-        contentRoot,
+        contentRoot: contentRoot + 'products/autumn/',
         contentDirs: [
           { text: 'Начало работы', dir: 'getting-started' },
           { text: 'Использование фреймворка', dir: 'framework-elements' },
         ],
         collapsed: false,
       }),
-      "/winow/": getSidebar({
-        contentRoot,
+      "/annotations/": getSidebar({
+        contentRoot: contentRoot + 'products/annotations/',
         contentDirs: [
-          // { text: 'winow', dir: 'winow' }
+          { text: 'annotations', dir: '.' }
+        ],
+        collapsed: false,
+      }),
+      "/winow/": getSidebar({
+        contentRoot: contentRoot + 'products/winow/',
+        contentDirs: [
+          { text: 'winow', dir: '.' }
         ],
         collapsed: false,
       }),
