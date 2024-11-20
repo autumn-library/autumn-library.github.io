@@ -119,21 +119,21 @@ export default defineConfig({
         collapsed: false,
       }),
       // api
-      "/api/autumn": getSidebar({
+      "/api/autumn/": getSidebar({
         contentRoot,
         contentDirs: [
           { text: 'autumn', dir: 'api/autumn' }
         ],
         collapsed: false,
       }),
-      "/api/annotations": getSidebar({
+      "/api/annotations/": getSidebar({
         contentRoot,
         contentDirs: [
           { text: 'annotations', dir: 'api/annotations' }
         ],
         collapsed: false,
       }),
-      "/api/autumn-collections": getSidebar({
+      "/api/autumn-collections/": getSidebar({
         contentRoot,
         contentDirs: [
           { text: 'autumn-collections', dir: 'api/autumn-collections' }
