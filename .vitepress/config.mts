@@ -82,6 +82,7 @@ export default defineConfig({
         items: [
           { text: 'autumn', link: '/api/autumn/' },
           { text: 'annotations', link: '/api/annotations/' },
+          { text: 'autumn-collections', link: '/api/autumn-collections/' },
         ]
        },
     ],
