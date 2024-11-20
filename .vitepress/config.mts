@@ -74,6 +74,7 @@ export default defineConfig({
           { text: 'autumn', link: '/getting-started/about-autumn' },
           { text: 'winow', link: '/winow/' },
           { text: 'annotations', link: '/annotations/' },
+          { text: 'autumn-collections', link: '/autumn-collections/' },
         ]
        },
       { 
@@ -102,6 +103,13 @@ export default defineConfig({
         ],
         collapsed: false,
       }),
+      "/autumn-collections/": getSidebar({
+        contentRoot: contentRoot + 'products/autumn-collections/',
+        contentDirs: [
+          { text: 'autumn-collections', dir: '.' }
+        ],
+        collapsed: false,
+      }),
       "/winow/": getSidebar({
         contentRoot: contentRoot + 'products/winow/',
         contentDirs: [
@@ -121,6 +129,13 @@ export default defineConfig({
         contentRoot,
         contentDirs: [
           { text: 'annotations', dir: 'api/annotations' }
+        ],
+        collapsed: false,
+      }),
+      "/api/autumn-collections": getSidebar({
+        contentRoot,
+        contentDirs: [
+          { text: 'autumn-collections', dir: 'api/autumn-collections' }
         ],
         collapsed: false,
       }),
