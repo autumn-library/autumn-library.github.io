@@ -250,7 +250,7 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
     const link = fs.existsSync(`${contentRoot}/${indexPath}`) ? `/${indexPath}` : ''
 
     sidebarItems.push({
-      text: path.basename(dir),
+      text: getPageName(path.basename(dir)),
       items: getSidebarItems(contentRoot, dir.replaceAll('\\', '/')),
       collapsed: false,
       link: link
@@ -261,7 +261,7 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
 
   for (const fileIndex in files) {
     const file = files[fileIndex];
-    if (path.basename(file) == 'index.md') continue;
+    if (path.basename(file) === 'index.md') continue;
     const sidebarItem = getSidebarItem(contentRoot, file);
     sidebarItems.push(sidebarItem);
   }
@@ -271,11 +271,7 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
 
 function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
   const fileName = path.basename(file, '.md');
-  const pageName = fileName
-    .replace(/^\d+-/, '')
-    .split('-')
-    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
-    .join(' ');
+  const pageName = getPageName(fileName);
 
   const fileContent = fs.readFileSync(path.join(contentRoot, file), 'utf8');
   const { data: frontmatter } = matter(fileContent);
@@ -287,3 +283,12 @@ function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
 
   return sidebarItem;
 }
+
+function getPageName(fileName: string) {
+  return fileName
+    .replace(/^\d+-/, '')
+    .split('-')
+    .map(word => word.charAt(0).toUpperCase() + word.slice(1))
+    .join(' ');
+}
+
