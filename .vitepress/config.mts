@@ -39,7 +39,7 @@ export default defineConfig({
 
   rewrites(id) {
     return id
-      .replace(/\d+-/, '')                 // удаление префикса сортировки
+      .replace(/\d+-/g, '')                 // удаление префикса сортировки
       .replaceAll('\\', '/')               // замена обратных виндовых слешей на прямые
       .replaceAll('products/autumn/', '')  // подмена пути products/autumn на корень
       .replaceAll('products/', '');        // удаление префикса products
@@ -278,7 +278,7 @@ function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
 
   const sidebarItem: DefaultTheme.SidebarItem = {
     text: frontmatter.title || pageName,
-    link: "/" + file.replace(/\d+-/, '').replaceAll('\\', '/')
+    link: "/" + file.replace(/\d+-/g, '').replaceAll('\\', '/')
   };
 
   return sidebarItem;
