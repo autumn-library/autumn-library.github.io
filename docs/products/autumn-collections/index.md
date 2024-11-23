@@ -6,11 +6,11 @@
   * [Массив](https://oscript.io/syntax/page/Массив)
   * [Соответствие](https://oscript.io/syntax/page/Соответствие)
   * [ТаблицаЗначений](https://oscript.io/syntax/page/ТаблицаЗначений)
-  * [Список](https://github.com/sfaqer/collectionos)
+  * [Список](https://github.com/sfaqer/collectionos#список)
   * [Множество](https://github.com/sfaqer/collectionos)
-  * [Карта](https://github.com/sfaqer/collectionos)
+  * [Карта](https://github.com/sfaqer/collectionos#карта)
 
-Так же имеется возможность добавить собственную прилепляемую коллекцию реализовав класс по примеру ниже:
+Так же имеется возможность добавить собственную прилепляемую коллекцию, реализовав класс по примеру ниже:
 
 ```bsl
 Перем Коллекция;
