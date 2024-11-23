@@ -35,7 +35,7 @@ export default defineConfig({
   srcDir: 'docs',
 
   // https://vitepress.dev/reference/site-config#base
-  base: "/docs",
+  //base: "/docs",
 
   rewrites(id) {
     return id
