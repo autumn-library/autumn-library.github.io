@@ -13,9 +13,6 @@ hero:
     - theme: brand
       text: Перейти в документацию
       link: /getting-started/about-autumn
-  #   - theme: alt
-  #     text: GitHub
-  #     link: https://github.com/autumn-library/autumn
 features:
 
   - title: Компонентный подход
@@ -41,12 +38,12 @@ features:
   - title: Annotations
     details: Библиотека для работы с аннотациями, может использоваться отдельно от экосистемы ОСени
     icon: 🍁
-    link: https://autumn-library.github.io/annotations
+    link: /annotations
     linkText: Документация
   - title: Autumn-collections
     details: Модуль реализует функциональность прилепляемых коллекций для ОСени.
     icon: 🐿️
-    link: https://autumn-library.github.io/autumn-collections
+    link: /autumn-collections
     linkText: Документация
 
   - title: "Дополнительные модули общего назначения"
@@ -91,7 +88,7 @@ features:
   - title: Winow
     details: Веб-сервер на чистом OneScript.
     icon: 🍷
-    link: https://autumn-library.github.io/winow
+    link: /winow
     linkText: Документация
   - title: ovm
     details: Менеджер версий OneScript на базе autumn-cli.
