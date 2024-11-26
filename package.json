@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@types/node": "^22.9.3",
+    "@types/node": "^22.10.0",
     "highlight.js": "^11.10.0",
     "highlightjs": "^9.16.2",
     "typescript": "^5.7.2",
