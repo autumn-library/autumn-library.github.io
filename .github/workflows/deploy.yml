@@ -1,9 +1,7 @@
-name: Deploy VitePress to GitHub Pages
+name: Build & Deploy VitePress to GitHub Pages
 
 on:
   push:
-    branches:
-      - master
 
 jobs:
   build:
@@ -42,6 +40,7 @@ jobs:
       
     needs: build
     runs-on: ubuntu-latest
+    if: github.ref_name == 'master'
     steps:
       - name: Deploy to GitHub Pages
         uses: actions/deploy-pages@v4
