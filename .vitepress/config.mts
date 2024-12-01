@@ -72,17 +72,13 @@ export default defineConfig({
         text: 'Документация',
         items: [
           { text: 'autumn', link: '/getting-started/about-autumn' },
-          { text: 'winow', link: '/winow/' },
-          { text: 'annotations', link: '/annotations/' },
-          { text: 'autumn-collections', link: '/autumn-collections/' },
+          ...getNavBarItems('products/', false, 'autumn'),
         ]
        },
       { 
         text: 'API', 
         items: [
-          { text: 'autumn', link: '/api/autumn/' },
-          { text: 'annotations', link: '/api/annotations/' },
-          { text: 'autumn-collections', link: '/api/autumn-collections/' },
+          ...getNavBarItems('api/'),
         ]
        },
     ],
@@ -90,7 +86,7 @@ export default defineConfig({
     sidebar: {
       // products
       "/": getSidebar({
-        contentRoot: contentRoot + 'products/autumn/',
+        contentRoot: contentRoot + 'products/000-autumn/',
         contentDirs: [
           { text: 'Начало работы', dir: 'getting-started' },
           { text: 'Использование фреймворка', dir: 'framework-elements' },
@@ -98,21 +94,21 @@ export default defineConfig({
         collapsed: false,
       }),
       "/annotations/": getSidebar({
-        contentRoot: contentRoot + 'products/annotations/',
+        contentRoot: contentRoot + 'products/010-annotations/',
         contentDirs: [
           { text: 'annotations', dir: '.' }
         ],
         collapsed: false,
       }),
       "/autumn-collections/": getSidebar({
-        contentRoot: contentRoot + 'products/autumn-collections/',
+        contentRoot: contentRoot + 'products/020-autumn-collections/',
         contentDirs: [
           { text: 'autumn-collections', dir: '.' }
         ],
         collapsed: false,
       }),
       "/winow/": getSidebar({
-        contentRoot: contentRoot + 'products/winow/',
+        contentRoot: contentRoot + 'products/010-winow/',
         contentDirs: [
           { text: 'winow', dir: '.' }
         ],
@@ -122,14 +118,14 @@ export default defineConfig({
       "/api/autumn/": getSidebar({
         contentRoot,
         contentDirs: [
-          { text: 'autumn', dir: 'api/autumn' }
+          { text: 'autumn', dir: 'api/000-autumn' }
         ],
         collapsed: false,
       }),
       "/api/annotations/": getSidebar({
         contentRoot,
         contentDirs: [
-          { text: 'annotations', dir: 'api/annotations' }
+          { text: 'annotations', dir: 'api/010-annotations' }
         ],
         collapsed: false,
       }),
@@ -284,11 +280,34 @@ function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
   return sidebarItem;
 }
 
-function getPageName(fileName: string) {
-  return fileName
-    .replace(/^\d+-/, '')
+function getPageName(fileName: string, doWordsSplit: boolean = true): string {
+  const replacedFileName = fileName.replace(/^\d+-/, '');
+  if (!doWordsSplit) return replacedFileName;
+
+  return replacedFileName
     .split('-')
     .map(word => word.charAt(0).toUpperCase() + word.slice(1))
     .join(' ');
 }
 
+function getNavBarItems(contentDir: string, appendNavBarWithContentDir: boolean = true, exclude: string = ''): DefaultTheme.NavItemWithLink[] {
+
+  const navBarItems: DefaultTheme.NavItemWithLink[] = [];
+  const cwd = `${process.cwd()}/${contentRoot}`;
+
+  const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
+
+  for (const dirIndex in dirs) {
+    const dir = dirs[dirIndex];
+
+    const text = getPageName(path.basename(dir), false);
+    const link = appendNavBarWithContentDir ? `/${contentDir}/${text}/` : `/${text}/`;
+
+    if (text === exclude) continue;
+
+    navBarItems.push({ text, link });
+  }
+
+  return navBarItems;
+
+}
