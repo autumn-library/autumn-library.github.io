@@ -110,13 +110,13 @@ features:
     icon: 📊
     link: https://github.com/autumn-library/codestatprofiler
     linkText: Документация
-  # - title: oproxy
-  #   details: "TCP-прокси сервер для хранилища конфигураций 1С: Предприятие 8"
-  #   icon: 🛡️
-  #   link: https://github.com/infina15/oproxy
-  #   linkText: Документация
-  - title: ""
-    details: "To be continued..."
-    icon: ⏳️
-    link: ""
+  - title: oproxy
+    details: "TCP-прокси сервер для хранилища конфигураций 1С: Предприятие 8"
+    icon: 🛡️
+    link: https://github.com/infina15/oproxy
+    linkText: Документация
+  # - title: ""
+  #   details: "To be continued..."
+  #   icon: ⏳️
+  #   link: ""
 ---
