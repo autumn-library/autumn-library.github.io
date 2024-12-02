@@ -93,50 +93,8 @@ export default defineConfig({
         ],
         collapsed: false,
       }),
-      "/annotations/": getSidebar({
-        contentRoot: contentRoot + 'products/010-annotations/',
-        contentDirs: [
-          { text: 'annotations', dir: '.' }
-        ],
-        collapsed: false,
-      }),
-      "/autumn-collections/": getSidebar({
-        contentRoot: contentRoot + 'products/020-autumn-collections/',
-        contentDirs: [
-          { text: 'autumn-collections', dir: '.' }
-        ],
-        collapsed: false,
-      }),
-      "/winow/": getSidebar({
-        contentRoot: contentRoot + 'products/010-winow/',
-        contentDirs: [
-          { text: 'winow', dir: '.' }
-        ],
-        collapsed: false,
-      }),
-      // api
-      "/api/autumn/": getSidebar({
-        contentRoot,
-        contentDirs: [
-          { text: 'autumn', dir: 'api/000-autumn' }
-        ],
-        collapsed: false,
-      }),
-      "/api/annotations/": getSidebar({
-        contentRoot,
-        contentDirs: [
-          { text: 'annotations', dir: 'api/010-annotations' }
-        ],
-        collapsed: false,
-      }),
-      "/api/autumn-collections/": getSidebar({
-        contentRoot,
-        contentDirs: [
-          { text: 'autumn-collections', dir: 'api/autumn-collections' }
-        ],
-        collapsed: false,
-      }),
-
+      ...getSidebars('products/', false, 'autumn'),
+      ...getSidebars('api/'),
     },
 
     socialLinks: [
@@ -207,6 +165,34 @@ interface SidebarOptions {
   contentRoot: string;
   contentDirs: { text: string; dir: string; }[];
   collapsed: boolean;
+}
+
+function getSidebars(contentDir: string, appendSideBarWithContentDir: boolean = true, excluded: string = ''): DefaultTheme.SidebarMulti {
+
+  const sidebars: DefaultTheme.SidebarMulti = {};
+
+  const cwd = `${process.cwd()}/${contentRoot}`;
+
+  const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
+  for (const dirIndex in dirs) {
+    const dir = dirs[dirIndex];
+  
+    const text = getPageName(path.basename(dir), false);
+    const link = appendSideBarWithContentDir ? `/${contentDir}${text}/` : `/${text}/`;
+
+    if (text === excluded) continue;
+
+    sidebars[link] = getSidebar({
+      contentRoot: contentRoot + dir + '/',
+      contentDirs: [
+        { text, dir: "." }
+      ],
+      collapsed: false,
+    });
+  }
+
+  return sidebars;
+
 }
 
 function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): DefaultTheme.SidebarItem[] {
