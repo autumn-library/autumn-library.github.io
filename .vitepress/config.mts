@@ -4,7 +4,6 @@ import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
 
-const bslLanguage = JSON.parse(fs.readFileSync('docs/bsl.json', 'utf8'))
 const contentRoot = 'docs/';
 
 // https://vitepress.dev/reference/site-config
@@ -24,9 +23,6 @@ export default defineConfig({
   ],
 
   appearance: 'dark',
-  markdown: {
-    languages: [bslLanguage],
-  },
 
   title: "Autumn Docs",
   description: "Это документация для Autumn - DI framework для OneScript",
