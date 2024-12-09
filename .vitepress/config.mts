@@ -9,6 +9,12 @@ const contentRoot = 'docs/';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 
+  vite: {
+    resolve: {
+      preserveSymlinks: true
+    }
+  },
+
   head: [
     [
       'script',
