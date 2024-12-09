@@ -2,3 +2,6 @@
 /.vitepress/dist
 /.vitepress/cache
 /sync
+/docs/api
+/docs/products
+/docs/static
