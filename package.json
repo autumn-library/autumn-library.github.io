@@ -3,6 +3,7 @@
     "@types/node": "^22.10.1",
     "highlight.js": "^11.10.0",
     "highlightjs": "^9.16.2",
+    "tsx": "^4.19.2",
     "typescript": "^5.7.2",
     "vitepress": "^1.5.x"
   },
