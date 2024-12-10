@@ -2,6 +2,8 @@ name: Build & Deploy VitePress to GitHub Pages
 
 on:
   push:
+  repository_dispatch:
+    types: [deploy]
 
 jobs:
   build:
