@@ -23,7 +23,7 @@ jobs:
         run: npm install
 
       - name: Fetch documentation contents
-        run: npx tsx syncRepositories.ts
+        run: npm run sync
 
       - name: Build the site
         run: npm run docs:build
