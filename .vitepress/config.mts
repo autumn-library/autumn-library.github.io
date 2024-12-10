@@ -191,8 +191,7 @@ function getSidebars(contentDir: string, appendSideBarWithContentDir: boolean = 
 
   const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
   for (const dirIndex in dirs) {
-    const dir = dirs[dirIndex];
-  
+    const dir = dirs[dirIndex].replace('\\', '/');
     const text = getPageName(path.basename(dir), false);
     const link = appendSideBarWithContentDir ? `/${contentDir}${text}/` : `/${text}/`;
 
@@ -225,8 +224,8 @@ function getSidebar({ contentRoot, contentDirs, collapsed, baseLink }: SidebarOp
 
 
 function getSidebarConfig(contentRoot, contentDir, text, collapsed, baseLink): DefaultTheme.SidebarItem {
-  const indexPath = `${contentDir}/index.md`.replaceAll('\\', '/');
-  const link = fs.existsSync(`${contentRoot}${indexPath}`) ? `/${baseLink}/${indexPath}` : ''
+  const indexPath = path.posix.join(contentRoot, contentDir, `index.md`);
+  const link = fs.existsSync(indexPath) ?  path.posix.join(baseLink, `index.md`) : ''
 
   const sidebarConfig: DefaultTheme.SidebarItem = {
     text,
