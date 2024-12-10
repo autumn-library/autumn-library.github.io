@@ -191,7 +191,7 @@ function getSidebars(contentDir: string, appendSideBarWithContentDir: boolean = 
 
   const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
   for (const dirIndex in dirs) {
-    const dir = dirs[dirIndex].replace('\\', '/');
+    const dir = dirs[dirIndex].replaceAll('\\', '/');
     const text = getPageName(path.basename(dir), false);
     const link = appendSideBarWithContentDir ? `/${contentDir}${text}/` : `/${text}/`;
 
