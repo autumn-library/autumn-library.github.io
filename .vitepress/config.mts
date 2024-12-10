@@ -9,6 +9,12 @@ const contentRoot = 'docs/';
 // https://vitepress.dev/reference/site-config
 export default defineConfig({
 
+  vite: {
+    resolve: {
+      preserveSymlinks: true
+    }
+  },
+
   head: [
     [
       'script',
@@ -88,6 +94,7 @@ export default defineConfig({
           { text: 'Использование фреймворка', dir: 'framework-elements' },
         ],
         collapsed: false,
+        baseLink: ""
       }),
       ...getSidebars('products/', false, 'autumn'),
       ...getSidebars('api/'),
@@ -161,6 +168,7 @@ interface SidebarOptions {
   contentRoot: string;
   contentDirs: { text: string; dir: string; }[];
   collapsed: boolean;
+  baseLink: string;
 }
 
 function getSidebars(contentDir: string, appendSideBarWithContentDir: boolean = true, excluded: string = ''): DefaultTheme.SidebarMulti {
@@ -184,6 +192,7 @@ function getSidebars(contentDir: string, appendSideBarWithContentDir: boolean = 
         { text, dir: "." }
       ],
       collapsed: false,
+      baseLink: link
     });
   }
 
@@ -191,11 +200,11 @@ function getSidebars(contentDir: string, appendSideBarWithContentDir: boolean = 
 
 }
 
-function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): DefaultTheme.SidebarItem[] {
+function getSidebar({ contentRoot, contentDirs, collapsed, baseLink }: SidebarOptions): DefaultTheme.SidebarItem[] {
   const sidebar: DefaultTheme.SidebarItem[] = [];
 
   for (const contentDir of contentDirs) {
-    const sidebarConfig = getSidebarConfig(contentRoot, contentDir.dir, contentDir.text, collapsed);
+    const sidebarConfig = getSidebarConfig(contentRoot, contentDir.dir, contentDir.text, collapsed, baseLink);
     sidebar.push(sidebarConfig);
   }
 
@@ -203,13 +212,13 @@ function getSidebar({ contentRoot, contentDirs, collapsed }: SidebarOptions): De
 }
 
 
-function getSidebarConfig(contentRoot, contentDir, text, collapsed): DefaultTheme.SidebarItem {
+function getSidebarConfig(contentRoot, contentDir, text, collapsed, baseLink): DefaultTheme.SidebarItem {
   const indexPath = `${contentDir}/index.md`.replaceAll('\\', '/');
-  const link = fs.existsSync(`${contentRoot}${indexPath}`) ? `/${indexPath}` : ''
+  const link = fs.existsSync(`${contentRoot}${indexPath}`) ? `/${baseLink}/${indexPath}` : ''
 
   const sidebarConfig: DefaultTheme.SidebarItem = {
     text,
-    items: getSidebarItems(contentRoot, contentDir),
+    items: getSidebarItems(contentRoot, contentDir, baseLink),
     collapsed,
     link: link
   };
@@ -217,7 +226,7 @@ function getSidebarConfig(contentRoot, contentDir, text, collapsed): DefaultThem
   return sidebarConfig;
 }
 
-function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
+function getSidebarItems(contentRoot, contentDir, baseLink): DefaultTheme.SidebarItem[] {
   const sidebarItems: DefaultTheme.SidebarItem[] = [];
   const cwd = `${process.cwd()}/${contentRoot}`;
 
@@ -225,11 +234,11 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
   for (const dirIndex in dirs) {
     const dir = dirs[dirIndex];
     const indexPath = `${dir}/index.md`.replaceAll('\\', '/');
-    const link = fs.existsSync(`${contentRoot}/${indexPath}`) ? `/${indexPath}` : ''
+    const link = fs.existsSync(`${contentRoot}/${indexPath}`) ? `/${baseLink}/${indexPath}` : ''
 
     sidebarItems.push({
       text: getPageName(path.basename(dir)),
-      items: getSidebarItems(contentRoot, dir.replaceAll('\\', '/')),
+      items: getSidebarItems(contentRoot, dir.replaceAll('\\', '/'), baseLink),
       collapsed: false,
       link: link
     });
@@ -240,14 +249,14 @@ function getSidebarItems(contentRoot, contentDir): DefaultTheme.SidebarItem[] {
   for (const fileIndex in files) {
     const file = files[fileIndex];
     if (path.basename(file) === 'index.md') continue;
-    const sidebarItem = getSidebarItem(contentRoot, file);
+    const sidebarItem = getSidebarItem(contentRoot, file, baseLink);
     sidebarItems.push(sidebarItem);
   }
 
   return sidebarItems;
 }
 
-function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
+function getSidebarItem(contentRoot, file: string, baseLink): DefaultTheme.SidebarItem {
   const fileName = path.basename(file, '.md');
   const pageName = getPageName(fileName);
 
@@ -256,7 +265,7 @@ function getSidebarItem(contentRoot, file: string): DefaultTheme.SidebarItem {
 
   const sidebarItem: DefaultTheme.SidebarItem = {
     text: frontmatter.title || pageName,
-    link: "/" + file.replace(/\d+-/g, '').replaceAll('\\', '/')
+    link: path.posix.join("/", baseLink, file.replace(/\d+-/g, '').replaceAll('\\', '/'))
   };
 
   return sidebarItem;
