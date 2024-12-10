@@ -2,7 +2,7 @@
 
 ## Пререквизиты
 
-* node.js 18+
+* node.js 23+
 * npm
 * VSCode или IntelliJ IDEA для редактирования документации
 
