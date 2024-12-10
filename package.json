@@ -8,7 +8,7 @@
     "vitepress": "^1.5.x"
   },
   "scripts": {
-    "sync": "tpx ./syncRepositories.ts",
+    "sync": "tsx ./syncRepositories.ts",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
