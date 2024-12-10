@@ -7,7 +7,7 @@ hero:
   text: "Фреймворк компонентных приложений для OneScript"
   tagline: "Добро пожаловать в уютный мир сообщества Autumn/ОСень - фреймворка для создания приложений на OneScript с применением подходов Dependency Injection и Inversion of Control."
   image:
-    src: acorn-ol-shadow.png
+    src: acorn-ol-shadow.webp
     alt: Autumn
   actions:
     - theme: brand

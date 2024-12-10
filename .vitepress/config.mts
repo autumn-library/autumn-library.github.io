@@ -66,7 +66,7 @@ export default defineConfig({
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
 
-    logo: 'acorn-ol.png',
+    logo: 'acorn-ol.webp',
 
     nav: [
       { text: 'Главная', link: '/' },
