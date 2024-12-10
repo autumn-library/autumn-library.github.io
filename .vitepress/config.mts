@@ -138,8 +138,21 @@ export default defineConfig({
     },
 
     editLink: {
-      pattern: 'https://github.com/autumn-library/docs/edit/master/docs/:path',
-      text: 'Редактировать страницу'
+      text: 'Редактировать страницу',
+      pattern: ( { filePath } ) => {
+        const [_, repoName, ...rest] = filePath.split('/')
+        const repoNamePath = repoName.replace(/\d+-/g, '')
+        const restPath = rest.join('/')
+
+        if (filePath.startsWith('api/')) {
+          return `https://github.com/autumn-library/${repoNamePath}/edit/master/docs/api/${restPath}`
+        }
+
+        if (filePath.startsWith('products/')) {
+          return `https://github.com/autumn-library/${repoNamePath}/edit/master/docs/product/${restPath}`
+        }
+        return ''      
+      }
     },
 
     docFooter: {
@@ -161,7 +174,6 @@ export default defineConfig({
     langMenuLabel: 'Изменить язык'
 
   }
-
 })
 
 interface SidebarOptions {
