@@ -14,6 +14,6 @@
   "dependencies": {
     "glob": "^11.0.1",
     "gray-matter": "^4.0.3",
-    "shiki": "^1.26.2"
+    "shiki": "^2.0.3"
   }
 }
