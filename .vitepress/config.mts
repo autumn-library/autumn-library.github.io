@@ -137,17 +137,18 @@ export default defineConfig({
 
     editLink: {
       text: 'Редактировать страницу',
-      pattern: ( { filePath } ) => {
+      pattern: ( { filePath, frontmatter } ) => {
         const [_, repoName, ...rest] = filePath.split('/')
         const repoNamePath = repoName.replace(/\d+-/g, '')
         const restPath = rest.join('/')
+        const orgName = frontmatter.organization || 'autumn-library';
 
         if (filePath.startsWith('api/')) {
-          return `https://github.com/autumn-library/${repoNamePath}/edit/master/docs/api/${restPath}`
+          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
         }
 
         if (filePath.startsWith('products/')) {
-          return `https://github.com/autumn-library/${repoNamePath}/edit/master/docs/product/${restPath}`
+          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`
         }
         return ''      
       }
