@@ -16,16 +16,9 @@ export default defineConfig({
   },
 
   transformPageData(pageData, ctx) {
-    // прочитать repositories.json в корне проекта в Map, где ключом будет имя репозитория,
-    // а значением - объект с данными о репозитории
-    // добавить в pageData информацию о репозитории, если она есть
-
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
-
-
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
-    // извлечь имя репозитория из pageData.relativePath, взять 2-й элемент после разделения по '/'
     const repoName = pageData.relativePath.split('/')[1];
     const repoData = repositoriesMap.get(repoName);
 
