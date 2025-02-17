@@ -15,6 +15,28 @@ export default defineConfig({
     }
   },
 
+  transformPageData(pageData, ctx) {
+    // прочитать repositories.json в корне проекта в Map, где ключом будет имя репозитория,
+    // а значением - объект с данными о репозитории
+    // добавить в pageData информацию о репозитории, если она есть
+
+    const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
+
+
+    const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
+
+    // извлечь имя репозитория из pageData.relativePath, взять 2-й элемент после разделения по '/'
+    const repoName = pageData.relativePath.split('/')[1];
+    const repoData = repositoriesMap.get(repoName);
+
+    return {
+      params: {
+        organization: repoData?.organization,
+      }
+    }
+
+  },
+
   head: [
     [
       'script',
@@ -137,11 +159,15 @@ export default defineConfig({
 
     editLink: {
       text: 'Редактировать страницу',
-      pattern: ( { filePath, frontmatter } ) => {
+      pattern: ( pageData ) => {
+
+        const filePath = pageData.filePath
+        const organization = pageData.params?.organization;
+
         const [_, repoName, ...rest] = filePath.split('/')
         const repoNamePath = repoName.replace(/\d+-/g, '')
         const restPath = rest.join('/')
-        const orgName = frontmatter.organization || 'autumn-library';
+        const orgName = organization || 'autumn-library';
 
         if (filePath.startsWith('api/')) {
           return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
@@ -174,6 +200,11 @@ export default defineConfig({
 
   }
 })
+
+type RepoData = {
+  repository: string;
+  organization: string;
+};
 
 interface SidebarOptions {
   contentRoot: string;

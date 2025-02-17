@@ -1,8 +1,26 @@
 [
-    "https://github.com/autumn-library/autumn.git",
-    "https://github.com/autumn-library/winow.git",
-    "https://github.com/autumn-library/annotations.git",
-    "https://github.com/nixel2007/extends.git",
-    "https://github.com/autumn-library/autumn-collections.git",
-    "https://github.com/autumn-library/autumn-logos.git"
+    {
+        "organization": "autumn-library",
+        "repository": "autumn"
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "winow"
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "annotations"
+    },
+    {
+        "organization": "nixel2007",
+        "repository": "extends"
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "autumn-collections"
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "autumn-logos"
+    }
 ]

@@ -5,6 +5,11 @@ import { execSync } from 'child_process'
 const SYNC_DIR = 'sync'
 const DOCS_DIR = 'docs'
 
+type RepoData = {
+    repository: string;
+    organization: string;
+  };
+
 function padNumber(num: number): string {
     return num.toString().padStart(3, '0')
 }
@@ -38,13 +43,14 @@ function syncRepositories(): void {
     }
 
     // Read repositories.json
-    const urls: string[] = JSON.parse(
+    const repoData: RepoData[] = JSON.parse(
         fs.readFileSync('repositories.json', 'utf-8')
     )
 
-    console.log(urls);
+    console.log(repoData);
 
-    urls.forEach((url, index) => {
+    repoData.forEach((repoEntry, index) => {
+        const url = `https://github.com/${repoEntry.organization}/${repoEntry.repository}.git`
         const repoName = url.split('/').pop()?.replace('.git', '') || ''
         const repoPath = path.join(SYNC_DIR, repoName)
 
