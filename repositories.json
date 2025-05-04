@@ -17,6 +17,10 @@
     },
     {
         "organization": "autumn-library",
+        "repository": "autumn-cli"
+    },
+    {
+        "organization": "autumn-library",
         "repository": "autumn-collections"
     },
     {
