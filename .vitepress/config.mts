@@ -155,23 +155,20 @@ export default defineConfig({
       pattern: ( pageData ) => {
 
         const filePath = pageData.filePath
-        const relativePath = pageData.relativePath
         const organization = pageData.params?.organization;
 
-        // Use relativePath to get the original repository name (before rewrites)
-        const [_, repoName, ...rest] = relativePath.split('/')
-        const repoNamePath = repoName.replace(/\d+-/g, '')
+        if (filePath.startsWith('api/')) {
+          const [_, repoName, ...rest] = filePath.split('/')
+          const restPath = rest.join('/')
+          const orgName = organization || 'autumn-library';
+          return `https://github.com/${orgName}/${repoName}/edit/master/docs/api/${restPath}`
+        }
+
+        // For products (after rewrites, products/ prefix is removed)
+        const [repoName, ...rest] = filePath.split('/')
         const restPath = rest.join('/')
         const orgName = organization || 'autumn-library';
-
-        if (filePath.startsWith('api/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
-        }
-
-        if (filePath.startsWith('products/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`
-        }
-        return ''      
+        return `https://github.com/${orgName}/${repoName}/edit/master/docs/product/${restPath}`
       }
     },
 
