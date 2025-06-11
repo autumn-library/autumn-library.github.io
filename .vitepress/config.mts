@@ -19,7 +19,16 @@ export default defineConfig({
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
-    const repoName = pageData.relativePath.split('/')[1]?.replace(/\d+-/g, '');
+    // For products, after rewrite the repository name is in the first segment (index 0)
+    // For api, the repository name is in the second segment (index 1)
+    let repoName: string;
+    if (pageData.relativePath.startsWith('api/')) {
+      repoName = pageData.relativePath.split('/')[1]?.replace(/\d+-/g, '') || '';
+    } else {
+      // For products and other paths, repository name is in the first segment
+      repoName = pageData.relativePath.split('/')[0]?.replace(/\d+-/g, '') || '';
+    }
+    
     const repoData = repositoriesMap.get(repoName);
 
     return {
@@ -165,11 +174,17 @@ export default defineConfig({
           const restPath = rest.join('/')
           
           if (relativePath.startsWith('api/')) {
-            return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`
+            return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`;
           }
 
-          if (relativePath.startsWith('products/')) {
-            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`
+          // For product pages, check if path starts with known product directory names
+          // or if we have repository info (indicating it's a product page)
+          const repoNames = ['autumn', 'winow', 'annotations', 'extends', 'autumn-cli', 'autumn-collections', 'autumn-logos'];
+          const isProductPage = repoNames.some(name => relativePath.startsWith(name + '/')) || 
+                               relativePath.split('/')[0] === repository;
+          
+          if (isProductPage) {
+            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
           }
         }
 
@@ -180,11 +195,11 @@ export default defineConfig({
         const orgName = organization || 'autumn-library';
 
         if (relativePath.startsWith('api/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
+          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`;
         }
 
         if (relativePath.startsWith('products/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`
+          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`;
         }
 
         return ''
