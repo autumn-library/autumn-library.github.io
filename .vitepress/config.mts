@@ -19,12 +19,29 @@ export default defineConfig({
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
-    const repoName = pageData.relativePath.split('/')[1]?.replace(/\d+-/g, '');
+    let repoName: string = '';
+    
+    // Use filePath for all variants to extract repository name
+    if (pageData.filePath) {
+      if (pageData.filePath.startsWith('api/')) {
+        // For API paths: api/000-autumn/... or api/003-extends/...
+        const pathSegments = pageData.filePath.split('/');
+        const repoSegment = pathSegments[1] || '';
+        repoName = repoSegment.replace(/^\d+-/, ''); // Remove number prefix
+      } else if (pageData.filePath.startsWith('products/')) {
+        // For product paths: products/000-autumn/... or products/003-extends/...
+        const pathSegments = pageData.filePath.split('/');
+        const repoSegment = pathSegments[1] || '';
+        repoName = repoSegment.replace(/^\d+-/, ''); // Remove number prefix
+      }
+    }
+    
     const repoData = repositoriesMap.get(repoName);
 
     return {
       params: {
         organization: repoData?.organization,
+        repository: repoData?.repository,
       }
     }
 
@@ -156,19 +173,28 @@ export default defineConfig({
 
         const relativePath = pageData.relativePath
         const organization = pageData.params?.organization;
+        const repository = pageData.params?.repository;
 
-        // Common calculation for repo extraction from relativePath
-        const [_, repoName, ...rest] = relativePath.split('/')
-        const repoNamePath = repoName?.replace(/\d+-/g, '') || ''
-        const restPath = rest.join('/')
-        const orgName = organization || 'autumn-library';
+        // If we have repository info from params, use it directly
+        if (organization && repository) {
+          if (relativePath.startsWith('api/')) {
+            // For API paths, remove 'api/' and repository name from path
+            const [_, repoSegment, ...rest] = relativePath.split('/')
+            const restPath = rest.join('/')
+            return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`;
+          }
 
-        if (relativePath.startsWith('api/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
-        }
-
-        if (relativePath.startsWith('products/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`
+          // For product pages - determine path based on repository type
+          if (repository === 'autumn') {
+            // This is autumn documentation at root level - use entire relativePath
+            const restPath = relativePath
+            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
+          } else {
+            // This is other repository documentation - path after first segment (repository name)
+            const [_, ...rest] = relativePath.split('/')
+            const restPath = rest.join('/')
+            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
+          }
         }
 
         return ''
