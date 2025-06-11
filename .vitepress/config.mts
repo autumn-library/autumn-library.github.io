@@ -154,21 +154,21 @@ export default defineConfig({
       text: 'Редактировать страницу',
       pattern: ( pageData ) => {
 
-        const filePath = pageData.filePath
+        const relativePath = pageData.relativePath
         const organization = pageData.params?.organization;
 
-        if (filePath.startsWith('api/')) {
-          const [_, repoName, ...rest] = filePath.split('/')
-          const restPath = rest.join('/')
-          const orgName = organization || 'autumn-library';
-          return `https://github.com/${orgName}/${repoName}/edit/master/docs/api/${restPath}`
-        }
-
-        // For products (after rewrites, products/ prefix is removed)
-        const [repoName, ...rest] = filePath.split('/')
+        // Common calculation for repo extraction from relativePath
+        const [_, repoName, ...rest] = relativePath.split('/')
+        const repoNamePath = repoName.replace(/\d+-/g, '')
         const restPath = rest.join('/')
         const orgName = organization || 'autumn-library';
-        return `https://github.com/${orgName}/${repoName}/edit/master/docs/product/${restPath}`
+
+        if (relativePath.startsWith('api/')) {
+          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
+        }
+
+        // For products
+        return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`
       }
     },
 
