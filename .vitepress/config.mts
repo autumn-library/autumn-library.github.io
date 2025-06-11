@@ -25,6 +25,7 @@ export default defineConfig({
     return {
       params: {
         organization: repoData?.organization,
+        repository: repoData?.repository,
       }
     }
 
@@ -156,8 +157,23 @@ export default defineConfig({
 
         const relativePath = pageData.relativePath
         const organization = pageData.params?.organization;
+        const repository = pageData.params?.repository;
 
-        // Common calculation for repo extraction from relativePath
+        // If we have repository info from params, use it directly
+        if (organization && repository) {
+          const [_, ...rest] = relativePath.split('/')
+          const restPath = rest.join('/')
+          
+          if (relativePath.startsWith('api/')) {
+            return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`
+          }
+
+          if (relativePath.startsWith('products/')) {
+            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`
+          }
+        }
+
+        // Fallback to old logic for paths that don't have repo info
         const [_, repoName, ...rest] = relativePath.split('/')
         const repoNamePath = repoName?.replace(/\d+-/g, '') || ''
         const restPath = rest.join('/')
