@@ -20,8 +20,7 @@ export default defineConfig({
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
     const repoName = pageData.relativePath.split('/')[1];
-    const cleanRepoName = repoName?.replace(/\d+-/g, '');
-    const repoData = repositoriesMap.get(cleanRepoName);
+    const repoData = repositoriesMap.get(repoName?.replace(/\d+-/g, ''));
 
     return {
       params: {
