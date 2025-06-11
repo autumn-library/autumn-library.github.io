@@ -184,18 +184,11 @@ export default defineConfig({
             return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`;
           }
 
-          // For product pages - determine path based on repository type
+          // For product pages - extract path after repository segment
           if (filePath.startsWith('products/')) {
-            if (repository === 'autumn') {
-              // For autumn documentation, use the relativePath since it's rewritten to remove products/autumn
-              const restPath = pageData.relativePath
-              return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
-            } else {
-              // For other repository documentation - path after repository segment
-              const [_, repoSegment, ...rest] = filePath.split('/')
-              const restPath = rest.join('/')
-              return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
-            }
+            const [_, repoSegment, ...rest] = filePath.split('/')
+            const restPath = rest.join('/')
+            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
           }
         }
 
