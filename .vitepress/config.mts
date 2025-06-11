@@ -19,14 +19,23 @@ export default defineConfig({
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
-    // For products, after rewrite the repository name is in the first segment (index 0)
-    // For api, the repository name is in the second segment (index 1)
     let repoName: string;
+    
     if (pageData.relativePath.startsWith('api/')) {
+      // For API paths, repository name is in the second segment after rewrite
       repoName = pageData.relativePath.split('/')[1]?.replace(/\d+-/g, '') || '';
     } else {
-      // For products and other paths, repository name is in the first segment
-      repoName = pageData.relativePath.split('/')[0]?.replace(/\d+-/g, '') || '';
+      // Check if this is a root-level autumn path (after rewrite from products/autumn/)
+      const firstSegment = pageData.relativePath.split('/')[0];
+      const autumnRootDirs = ['getting-started', 'framework-elements'];
+      
+      if (autumnRootDirs.includes(firstSegment)) {
+        // This is autumn documentation at root level
+        repoName = 'autumn';
+      } else {
+        // For other products, repository name is in the first segment after rewrite
+        repoName = firstSegment?.replace(/\d+-/g, '') || '';
+      }
     }
     
     const repoData = repositoriesMap.get(repoName);
@@ -170,20 +179,26 @@ export default defineConfig({
 
         // If we have repository info from params, use it directly
         if (organization && repository) {
-          const [_, ...rest] = relativePath.split('/')
-          const restPath = rest.join('/')
-          
           if (relativePath.startsWith('api/')) {
+            // For API paths, remove 'api/' and repository name from path
+            const [_, repoSegment, ...rest] = relativePath.split('/')
+            const restPath = rest.join('/')
             return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`;
           }
 
-          // For product pages, check if path starts with known product directory names
-          // or if we have repository info (indicating it's a product page)
-          const repoNames = ['autumn', 'winow', 'annotations', 'extends', 'autumn-cli', 'autumn-collections', 'autumn-logos'];
-          const isProductPage = repoNames.some(name => relativePath.startsWith(name + '/')) || 
-                               relativePath.split('/')[0] === repository;
+          // For product pages
+          const firstSegment = relativePath.split('/')[0];
+          const autumnRootDirs = ['getting-started', 'framework-elements'];
           
-          if (isProductPage) {
+          if (autumnRootDirs.includes(firstSegment)) {
+            // This is autumn documentation at root level - path after first segment
+            const [_, ...rest] = relativePath.split('/')
+            const restPath = rest.join('/')
+            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
+          } else {
+            // This is other repository documentation - path after first segment (repository name)
+            const [_, ...rest] = relativePath.split('/')
+            const restPath = rest.join('/')
             return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
           }
         }
