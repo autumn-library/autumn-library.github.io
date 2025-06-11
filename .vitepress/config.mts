@@ -186,9 +186,8 @@ export default defineConfig({
 
           // For product pages - use filePath to determine if it's autumn docs
           if (pageData.filePath && pageData.filePath.includes('products/000-autumn')) {
-            // This is autumn documentation at root level - path after first segment
-            const [_, ...rest] = relativePath.split('/')
-            const restPath = rest.join('/')
+            // This is autumn documentation at root level - use entire relativePath
+            const restPath = relativePath
             return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
           } else {
             // This is other repository documentation - path after first segment (repository name)
