@@ -20,7 +20,8 @@ export default defineConfig({
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
     const repoName = pageData.relativePath.split('/')[1];
-    const repoData = repositoriesMap.get(repoName);
+    const cleanRepoName = repoName?.replace(/\d+-/g, '');
+    const repoData = repositoriesMap.get(cleanRepoName);
 
     return {
       params: {
@@ -155,9 +156,11 @@ export default defineConfig({
       pattern: ( pageData ) => {
 
         const filePath = pageData.filePath
+        const relativePath = pageData.relativePath
         const organization = pageData.params?.organization;
 
-        const [_, repoName, ...rest] = filePath.split('/')
+        // Use relativePath to get the original repository name (before rewrites)
+        const [_, repoName, ...rest] = relativePath.split('/')
         const repoNamePath = repoName.replace(/\d+-/g, '')
         const restPath = rest.join('/')
         const orgName = organization || 'autumn-library';
