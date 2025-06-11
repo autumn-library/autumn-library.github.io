@@ -19,20 +19,20 @@ export default defineConfig({
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
-    let repoName: string;
+    let repoName: string = '';
     
-    if (pageData.relativePath.startsWith('api/')) {
-      // For API paths, repository name is in the second segment after rewrite
-      repoName = pageData.relativePath.split('/')[1] || '';
-    } else {
-      // Use filePath to determine if this is autumn documentation
-      // pageData.filePath contains the original path before rewrites
-      if (pageData.filePath && pageData.filePath.includes('products/000-autumn')) {
-        // This is autumn documentation at root level (after rewrite from products/000-autumn/)
-        repoName = 'autumn';
-      } else {
-        // For other products, repository name is in the first segment after rewrite
-        repoName = pageData.relativePath.split('/')[0] || '';
+    // Use filePath for all variants to extract repository name
+    if (pageData.filePath) {
+      if (pageData.filePath.startsWith('api/')) {
+        // For API paths: api/000-autumn/... or api/003-extends/...
+        const pathSegments = pageData.filePath.split('/');
+        const repoSegment = pathSegments[1] || '';
+        repoName = repoSegment.replace(/^\d+-/, ''); // Remove number prefix
+      } else if (pageData.filePath.startsWith('products/')) {
+        // For product paths: products/000-autumn/... or products/003-extends/...
+        const pathSegments = pageData.filePath.split('/');
+        const repoSegment = pathSegments[1] || '';
+        repoName = repoSegment.replace(/^\d+-/, ''); // Remove number prefix
       }
     }
     
@@ -184,8 +184,8 @@ export default defineConfig({
             return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`;
           }
 
-          // For product pages - use filePath to determine if it's autumn docs
-          if (pageData.filePath && pageData.filePath.includes('products/000-autumn')) {
+          // For product pages - determine path based on repository type
+          if (repository === 'autumn') {
             // This is autumn documentation at root level - use entire relativePath
             const restPath = relativePath
             return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
