@@ -23,7 +23,7 @@ export default defineConfig({
     
     if (pageData.relativePath.startsWith('api/')) {
       // For API paths, repository name is in the second segment after rewrite
-      repoName = pageData.relativePath.split('/')[1]?.replace(/\d+-/g, '') || '';
+      repoName = pageData.relativePath.split('/')[1] || '';
     } else {
       // Use filePath to determine if this is autumn documentation
       // pageData.filePath contains the original path before rewrites
@@ -32,8 +32,7 @@ export default defineConfig({
         repoName = 'autumn';
       } else {
         // For other products, repository name is in the first segment after rewrite
-        const firstSegment = pageData.relativePath.split('/')[0];
-        repoName = firstSegment?.replace(/\d+-/g, '') || '';
+        repoName = pageData.relativePath.split('/')[0] || '';
       }
     }
     
