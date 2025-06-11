@@ -171,27 +171,22 @@ export default defineConfig({
       text: 'Редактировать страницу',
       pattern: ( pageData ) => {
 
-        const relativePath = pageData.relativePath
+        const filePath = pageData.filePath
         const organization = pageData.params?.organization;
         const repository = pageData.params?.repository;
 
         // If we have repository info from params, use it directly
         if (organization && repository) {
-          if (relativePath.startsWith('api/')) {
+          if (filePath.startsWith('api/')) {
             // For API paths, remove 'api/' and repository name from path
-            const [_, repoSegment, ...rest] = relativePath.split('/')
+            const [_, repoSegment, ...rest] = filePath.split('/')
             const restPath = rest.join('/')
             return `https://github.com/${organization}/${repository}/edit/master/docs/api/${restPath}`;
           }
 
-          // For product pages - determine path based on repository type
-          if (repository === 'autumn') {
-            // This is autumn documentation at root level - use entire relativePath
-            const restPath = relativePath
-            return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
-          } else {
-            // This is other repository documentation - path after first segment (repository name)
-            const [_, ...rest] = relativePath.split('/')
+          // For product pages - extract path after repository segment
+          if (filePath.startsWith('products/')) {
+            const [_, repoSegment, ...rest] = filePath.split('/')
             const restPath = rest.join('/')
             return `https://github.com/${organization}/${repository}/edit/master/docs/product/${restPath}`;
           }
