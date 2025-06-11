@@ -19,7 +19,7 @@ export default defineConfig({
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
 
-    const repoName = pageData.relativePath.split('/')[1];
+    const repoName = pageData.relativePath.split('/')[1]?.replace(/\d+-/g, '');
     const repoData = repositoriesMap.get(repoName);
 
     return {
@@ -154,22 +154,24 @@ export default defineConfig({
       text: 'Редактировать страницу',
       pattern: ( pageData ) => {
 
-        const filePath = pageData.filePath
+        const relativePath = pageData.relativePath
         const organization = pageData.params?.organization;
 
-        const [_, repoName, ...rest] = filePath.split('/')
-        const repoNamePath = repoName.replace(/\d+-/g, '')
+        // Common calculation for repo extraction from relativePath
+        const [_, repoName, ...rest] = relativePath.split('/')
+        const repoNamePath = repoName?.replace(/\d+-/g, '') || ''
         const restPath = rest.join('/')
         const orgName = organization || 'autumn-library';
 
-        if (filePath.startsWith('api/')) {
+        if (relativePath.startsWith('api/')) {
           return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`
         }
 
-        if (filePath.startsWith('products/')) {
+        if (relativePath.startsWith('products/')) {
           return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`
         }
-        return ''      
+
+        return ''
       }
     },
 
