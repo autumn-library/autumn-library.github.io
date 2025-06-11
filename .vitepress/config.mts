@@ -199,20 +199,6 @@ export default defineConfig({
           }
         }
 
-        // Fallback to old logic for paths that don't have repo info
-        const [_, repoName, ...rest] = relativePath.split('/')
-        const repoNamePath = repoName?.replace(/\d+-/g, '') || ''
-        const restPath = rest.join('/')
-        const orgName = organization || 'autumn-library';
-
-        if (relativePath.startsWith('api/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/api/${restPath}`;
-        }
-
-        if (relativePath.startsWith('products/')) {
-          return `https://github.com/${orgName}/${repoNamePath}/edit/master/docs/product/${restPath}`;
-        }
-
         return ''
       }
     },
