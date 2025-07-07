@@ -1,6 +1,6 @@
 {
   "devDependencies": {
-    "@types/node": "^22.15.30",
+    "@types/node": "^24.0.10",
     "tsx": "^4.19.4",
     "typescript": "^5.8.3",
     "vitepress": "^1.6.x"
