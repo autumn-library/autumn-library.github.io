@@ -104,6 +104,7 @@ export default defineConfig({
         text: 'Документация',
         items: [
           { text: 'autumn', link: '/getting-started/about-autumn' },
+          { text: 'Полная документация (одна страница)', link: '/single-page' },
           ...getNavBarItems('products/', false, 'autumn'),
         ]
        },
