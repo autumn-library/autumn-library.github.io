@@ -8,8 +8,8 @@
   "scripts": {
     "sync": "tsx ./syncRepositories.ts",
     "generate-single-page": "tsx ./generate-single-page.ts",
-    "docs:dev": "npm run generate-single-page && vitepress dev",
-    "docs:build": "npm run generate-single-page && vitepress build",
+    "docs:dev": "vitepress dev",
+    "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
   },
   "dependencies": {
