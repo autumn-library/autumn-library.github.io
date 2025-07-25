@@ -7,6 +7,7 @@
   },
   "scripts": {
     "sync": "tsx ./syncRepositories.ts",
+    "generate-single-page": "tsx ./generate-single-page.ts",
     "docs:dev": "vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"

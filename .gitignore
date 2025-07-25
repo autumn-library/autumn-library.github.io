@@ -5,3 +5,6 @@
 /docs/api
 /docs/products
 /docs/static
+
+# Generated single-page documentation files
+/docs/single-page*.md
