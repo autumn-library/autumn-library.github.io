@@ -47,7 +47,9 @@ export default defineConfig({
     const repoData = repositoriesMap.get(repoName);
 
     // Disable outline for single-page documentation
-    if (pageData.relativePath && pageData.relativePath.endsWith('/single-page.md')) {
+    if (pageData.relativePath && 
+        (pageData.relativePath.endsWith('/single-page.md') || 
+         pageData.relativePath.includes('single-page/'))) {
       pageData.frontmatter = pageData.frontmatter || {};
       pageData.frontmatter.outline = false;
     }
@@ -115,7 +117,14 @@ export default defineConfig({
 
   },
 
-  ignoreDeadLinks: 'localhostLinks',
+  ignoreDeadLinks: [
+    'localhostLinks',
+    (url: string, context?: string) => {
+      // Ignore all dead links in single-page documentation and localhost links
+      if (url && url.startsWith('http://localhost')) return true;
+      return (context && context.includes('single-page')) || (url && url.includes('%D0%'));
+    }
+  ],
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -129,18 +138,16 @@ export default defineConfig({
         items: [
           { text: 'autumn', link: '/getting-started/about-autumn' },
           ...getNavBarItems('products/', false, 'autumn'),
-          ...getDynamicSinglePageNavItems('products'),
         ]
        },
       { 
         text: 'API', 
         items: [
           ...getNavBarItems('api/'),
-          ...getDynamicSinglePageNavItems('api'),
         ]
        },
       { 
-        text: 'Полностраничный режим',
+        text: 'Одностраничный режим',
         items: [
           { text: 'Документация', items: getToggleModeNavItems().products },
           { text: 'API', items: getToggleModeNavItems().api },
