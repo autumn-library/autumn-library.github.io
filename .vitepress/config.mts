@@ -21,6 +21,11 @@ export default defineConfig({
     generateAllSinglePages();
   },
 
+  async buildStart() {
+    // Generate single-page documentation during dev mode if files don't exist
+    generateMissingSinglePages();
+  },
+
   transformPageData(pageData, ctx) {
     const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
     const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
@@ -134,6 +139,20 @@ export default defineConfig({
         collapsed: false,
         baseLink: ""
       }),
+      
+      // single-page routes should not have sidebars
+      "/autumn/single-page": [],
+      "/winow/single-page": [],
+      "/annotations/single-page": [],
+      "/extends/single-page": [],
+      "/autumn-cli/single-page": [],
+      "/autumn-collections/single-page": [],
+      "/autumn-logos/single-page": [],
+      "/api/autumn/single-page": [],
+      "/api/annotations/single-page": [],
+      "/api/extends/single-page": [],
+      "/api/autumn-collections/single-page": [],
+      
       ...getSidebars('products/', false, 'autumn'),
       ...getSidebars('api/'),
     },
@@ -378,6 +397,7 @@ function getDynamicSinglePageNavItems(sectionType: 'products' | 'api'): DefaultT
   for (const dirIndex in dirs) {
     const dir = dirs[dirIndex];
     const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
     const displayName = getPageName(productName, false);
     
     // Skip if no content exists
@@ -389,7 +409,14 @@ function getDynamicSinglePageNavItems(sectionType: 'products' | 'api'): DefaultT
     if (!hasContent) continue;
     
     const text = `${displayName} (одна страница)`;
-    const link = `/single-page-${sectionType}-${productName}`;
+    
+    // New URL structure: /product-name/single-page or /api/product-name/single-page
+    let link: string;
+    if (sectionType === 'api') {
+      link = `/api/${cleanName}/single-page`;
+    } else {
+      link = `/${cleanName}/single-page`;
+    }
 
     navBarItems.push({ text, link });
   }
@@ -452,4 +479,64 @@ function generateAllSinglePages(): void {
   }
   
   console.log('Single-page documentation generation complete.');
+}
+
+function generateMissingSinglePages(): void {
+  console.log('Checking for missing single-page documentation...');
+  
+  const sections: ('products' | 'api')[] = ['products', 'api'];
+  
+  for (const sectionType of sections) {
+    const sectionPath = `docs/${sectionType}`;
+    
+    if (!fs.existsSync(sectionPath)) continue;
+    
+    const products = fs.readdirSync(sectionPath)
+      .filter(item => {
+        const itemPath = path.join(sectionPath, item);
+        return fs.lstatSync(itemPath).isDirectory() || fs.lstatSync(itemPath).isSymbolicLink();
+      });
+    
+    for (const productName of products) {
+      const productPath = path.join(sectionPath, productName);
+      
+      // Determine output path using new URL structure
+      const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+      let outputPath: string;
+      
+      if (sectionType === 'api') {
+        outputPath = `docs/api/${displayName}/single-page.md`;
+      } else {
+        outputPath = `docs/${displayName}/single-page.md`;
+      }
+      
+      // Only generate if file doesn't exist and product has content
+      if (!fs.existsSync(outputPath) && hasMarkdownContent(productPath)) {
+        try {
+          createSinglePageDocumentation(sectionType, productName);
+          console.log(`Generated missing single-page: ${outputPath}`);
+        } catch (error) {
+          console.warn(`Failed to generate single-page for ${sectionType}/${productName}: ${error.message}`);
+        }
+      }
+    }
+  }
+}
+
+function getProductDisplayName(productName: string): string {
+  // Remove number prefix and capitalize
+  const cleanName = productName.replace(/^\d+-/, '');
+  
+  // Special cases for display names
+  const displayNames: { [key: string]: string } = {
+    'autumn': 'autumn',
+    'winow': 'winow',
+    'annotations': 'annotations',
+    'extends': 'extends', 
+    'autumn-cli': 'autumn-cli',
+    'autumn-collections': 'autumn-collections',
+    'autumn-logos': 'autumn-logos'
+  };
+  
+  return displayNames[cleanName] || cleanName;
 }

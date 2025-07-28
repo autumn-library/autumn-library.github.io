@@ -60,13 +60,16 @@ function processAllFilesRecursively(directory: string, baseDir: string = ''): Ma
   const files = processMarkdownFiles(directory);
   allFiles.push(...files);
   
-  // Then, process subdirectories recursively
+  // Then, process subdirectories recursively with proper ordering
   const directories = items
     .filter(item => item.isDirectory())
     .map(item => item.name)
     .sort();
+  
+  // Special ordering for common documentation structure
+  const orderedDirectories = sortDirectoriesForDocumentation(directories);
     
-  for (const subDir of directories) {
+  for (const subDir of orderedDirectories) {
     // Skip certain directories
     if (subDir === 'index' || subDir.startsWith('.')) continue;
     
@@ -76,6 +79,36 @@ function processAllFilesRecursively(directory: string, baseDir: string = ''): Ma
   }
   
   return allFiles;
+}
+
+function sortDirectoriesForDocumentation(directories: string[]): string[] {
+  // Define the preferred order for common documentation directories
+  const preferredOrder = [
+    'getting-started',
+    'framework-elements',
+    'api',
+    'examples',
+    'guides',
+    'reference'
+  ];
+  
+  // Sort directories by preferred order, then alphabetically for others
+  return directories.sort((a, b) => {
+    const aIndex = preferredOrder.indexOf(a);
+    const bIndex = preferredOrder.indexOf(b);
+    
+    // If both are in preferred order, sort by that order
+    if (aIndex !== -1 && bIndex !== -1) {
+      return aIndex - bIndex;
+    }
+    
+    // If only one is in preferred order, prefer it
+    if (aIndex !== -1) return -1;
+    if (bIndex !== -1) return 1;
+    
+    // Otherwise, sort alphabetically
+    return a.localeCompare(b);
+  });
 }
 
 function adjustImagePaths(content: string, productName: string, sectionType: 'products' | 'api'): string {
@@ -167,19 +200,13 @@ function createSinglePageDocumentation(sectionType: 'products' | 'api', productN
   singlePageContent += `# ${frontmatter.title}\n\n`;
   singlePageContent += `${frontmatter.description}\n\n`;
   
-  // Add table of contents
-  singlePageContent += generateTableOfContents(allFiles);
-  
-  // Process and combine all files
+  // Process and combine all files without TOC or extra section titles
   for (const file of allFiles) {
-    const title = file.frontmatter.title || file.filename.replace(/^\d+-/, '').replace('.md', '');
-    
-    singlePageContent += `## ${title}\n\n`;
-    
     // Adjust content
     let processedContent = adjustImagePaths(file.content, productName, sectionType);
-    processedContent = adjustHeadingLevels(processedContent, 1);
+    processedContent = adjustHeadingLevels(processedContent, 0); // Don't adjust heading levels
     
+    // Add the content directly without extra section titles
     singlePageContent += processedContent;
     singlePageContent += '\n\n---\n\n';
   }
@@ -187,8 +214,25 @@ function createSinglePageDocumentation(sectionType: 'products' | 'api', productN
   // Remove the last separator
   singlePageContent = singlePageContent.replace(/\n\n---\n\n$/, '\n');
   
-  // Generate output filename
-  const outputPath = `docs/single-page-${sectionType}-${productName}.md`;
+  // Generate output filename using new URL structure
+  const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+  let outputPath: string;
+  
+  if (sectionType === 'api') {
+    // Create directory structure for /api/product-name/single-page
+    const apiDir = `docs/api/${displayName}`;
+    if (!fs.existsSync(apiDir)) {
+      fs.mkdirSync(apiDir, { recursive: true });
+    }
+    outputPath = `${apiDir}/single-page.md`;
+  } else {
+    // Create directory structure for /product-name/single-page
+    const productDir = `docs/${displayName}`;
+    if (!fs.existsSync(productDir)) {
+      fs.mkdirSync(productDir, { recursive: true });
+    }
+    outputPath = `${productDir}/single-page.md`;
+  }
   
   // Write the single page file
   fs.writeFileSync(outputPath, singlePageContent, 'utf-8');
@@ -204,13 +248,13 @@ function getProductDisplayName(productName: string): string {
   
   // Special cases for display names
   const displayNames: { [key: string]: string } = {
-    'autumn': 'Autumn Framework',
-    'winow': 'Winow',
-    'annotations': 'Annotations',
-    'extends': 'Extends', 
-    'autumn-cli': 'Autumn CLI',
-    'autumn-collections': 'Autumn Collections',
-    'autumn-logos': 'Autumn Logos'
+    'autumn': 'autumn',
+    'winow': 'winow',
+    'annotations': 'annotations',
+    'extends': 'extends', 
+    'autumn-cli': 'autumn-cli',
+    'autumn-collections': 'autumn-collections',
+    'autumn-logos': 'autumn-logos'
   };
   
   return displayNames[cleanName] || cleanName;

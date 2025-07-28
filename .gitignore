@@ -8,3 +8,14 @@
 
 # Generated single-page documentation files
 /docs/single-page*.md
+/docs/autumn/single-page.md
+/docs/winow/single-page.md
+/docs/annotations/single-page.md
+/docs/extends/single-page.md
+/docs/autumn-cli/single-page.md
+/docs/autumn-collections/single-page.md
+/docs/autumn-logos/single-page.md
+/docs/api/autumn/single-page.md
+/docs/api/annotations/single-page.md
+/docs/api/extends/single-page.md
+/docs/api/autumn-collections/single-page.md
