@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { createSinglePageDocumentation } from './generate-single-page.ts';
+import { createSinglePageDocumentation, createSinglePageToggleDocumentation } from './generate-single-page.ts';
 
 function hasMarkdownContent(directory: string): boolean {
   if (!fs.existsSync(directory)) return false;
@@ -63,25 +63,41 @@ function generateMissingSinglePages(): void {
     for (const productName of products) {
       const productPath = path.join(sectionPath, productName);
       
-      // Determine output path based on fixed structure
+      // Determine output paths for both original and toggle modes
       let outputPath: string;
+      let toggleOutputPath: string;
       
       if (sectionType === 'api') {
         // API files go in the original structure
         outputPath = `${productPath}/single-page.md`;
+        // Toggle mode files
+        const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+        toggleOutputPath = `docs/single-page/api/${displayName}.md`;
       } else {
         // Product files go in the clean name structure (bypass products/ rewrites)
         const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
         outputPath = `docs/${displayName}/single-page.md`;
+        // Toggle mode files
+        toggleOutputPath = `docs/single-page/${displayName}.md`;
       }
       
-      // Only generate if file doesn't exist and product has content
+      // Generate original single-page if missing
       if (!fs.existsSync(outputPath) && hasMarkdownContent(productPath)) {
         try {
           createSinglePageDocumentation(sectionType, productName);
           console.log(`Generated missing single-page: ${outputPath}`);
         } catch (error) {
           console.warn(`Failed to generate single-page for ${sectionType}/${productName}: ${error.message}`);
+        }
+      }
+      
+      // Generate toggle mode single-page if missing
+      if (!fs.existsSync(toggleOutputPath) && hasMarkdownContent(productPath)) {
+        try {
+          createSinglePageToggleDocumentation(sectionType, productName);
+          console.log(`Generated missing toggle single-page: ${toggleOutputPath}`);
+        } catch (error) {
+          console.warn(`Failed to generate toggle single-page for ${sectionType}/${productName}: ${error.message}`);
         }
       }
     }

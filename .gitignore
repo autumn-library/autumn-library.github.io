@@ -8,6 +8,7 @@
 
 # Generated single-page documentation files
 /docs/single-page*.md
+/docs/single-page/
 /docs/autumn/single-page.md
 /docs/winow/single-page.md
 /docs/annotations/single-page.md

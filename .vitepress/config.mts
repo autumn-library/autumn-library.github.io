@@ -3,7 +3,7 @@ import { glob } from 'glob';
 import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
-import { createSinglePageDocumentation } from '../generate-single-page.ts';
+import { createSinglePageDocumentation, generateAllToggleSinglePages } from '../generate-single-page.ts';
 
 const contentRoot = 'docs/';
 
@@ -19,6 +19,8 @@ export default defineConfig({
   buildEnd(siteConfig) {
     // Generate single-page documentation for all products and APIs
     generateAllSinglePages();
+    // Generate toggle mode single-page documentation
+    generateAllToggleSinglePages();
   },
 
   transformPageData(pageData, ctx) {
@@ -84,6 +86,16 @@ export default defineConfig({
   //base: "/docs",
 
   rewrites(id) {
+    // Handle single-page mode routes first
+    if (id.includes('single-page/api/')) {
+      // Convert docs/single-page/api/autumn.md -> /single-page/api/autumn
+      return id;
+    }
+    if (id.includes('single-page/')) {
+      // Convert docs/single-page/autumn.md -> /single-page/autumn  
+      return id;
+    }
+    
     return id
       .replace(/\d+-/g, '')                 // удаление префикса сортировки
       .replaceAll('\\', '/')               // замена обратных виндовых слешей на прямые
@@ -127,6 +139,13 @@ export default defineConfig({
           ...getDynamicSinglePageNavItems('api'),
         ]
        },
+      { 
+        text: 'Полностраничный режим',
+        items: [
+          { text: 'Документация', items: getToggleModeNavItems().products },
+          { text: 'API', items: getToggleModeNavItems().api },
+        ]
+       },
     ],
 
     sidebar: {
@@ -143,6 +162,9 @@ export default defineConfig({
       
       // single-page routes with custom sidebars
       ...getSinglePageSidebars(),
+      
+      // toggle mode single-page routes
+      ...getToggleModeSidebars(),
       
       ...getSidebars('products/', false, 'autumn'),
       ...getSidebars('api/'),
@@ -522,6 +544,83 @@ function getSinglePageSidebars(): DefaultTheme.SidebarMulti {
     
     const singlePageRoute = `/api/${cleanName}/single-page`;
     sidebars[singlePageRoute] = generateSinglePageSidebar('api', productName, singlePageRoute);
+  }
+  
+  return sidebars;
+}
+
+function getToggleModeNavItems(): { products: DefaultTheme.NavItemWithLink[], api: DefaultTheme.NavItemWithLink[] } {
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  const productItems: DefaultTheme.NavItemWithLink[] = [];
+  const apiItems: DefaultTheme.NavItemWithLink[] = [];
+  
+  // Generate navigation for products in toggle mode
+  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
+  for (const dirIndex in productDirs) {
+    const dir = productDirs[dirIndex];
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    const displayName = getPageName(productName, false);
+    
+    // Check if product has content
+    const productPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(productPath)) continue;
+    
+    const link = `/single-page/${cleanName}`;
+    productItems.push({ text: displayName, link });
+  }
+  
+  // Generate navigation for APIs in toggle mode
+  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
+  for (const dirIndex in apiDirs) {
+    const dir = apiDirs[dirIndex];
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    const displayName = getPageName(productName, false);
+    
+    // Check if API has content
+    const apiPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(apiPath)) continue;
+    
+    const link = `/single-page/api/${cleanName}`;
+    apiItems.push({ text: displayName, link });
+  }
+  
+  return { products: productItems, api: apiItems };
+}
+
+function getToggleModeSidebars(): DefaultTheme.SidebarMulti {
+  const sidebars: DefaultTheme.SidebarMulti = {};
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  
+  // Generate sidebars for products in toggle mode
+  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
+  for (const dirIndex in productDirs) {
+    const dir = productDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if product has content
+    const productPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(productPath)) continue;
+    
+    const toggleRoute = `/single-page/${cleanName}`;
+    sidebars[toggleRoute] = generateSinglePageSidebar('products', productName, toggleRoute);
+  }
+  
+  // Generate sidebars for APIs in toggle mode
+  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
+  for (const dirIndex in apiDirs) {
+    const dir = apiDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if API has content
+    const apiPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(apiPath)) continue;
+    
+    const toggleRoute = `/single-page/api/${cleanName}`;
+    sidebars[toggleRoute] = generateSinglePageSidebar('api', productName, toggleRoute);
   }
   
   return sidebars;
