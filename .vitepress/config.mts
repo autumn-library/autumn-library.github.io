@@ -44,6 +44,12 @@ export default defineConfig({
     
     const repoData = repositoriesMap.get(repoName);
 
+    // Disable outline for single-page documentation
+    if (pageData.relativePath && pageData.relativePath.endsWith('/single-page.md')) {
+      pageData.frontmatter = pageData.frontmatter || {};
+      pageData.frontmatter.outline = false;
+    }
+
     return {
       params: {
         organization: repoData?.organization,
@@ -135,18 +141,8 @@ export default defineConfig({
         baseLink: ""
       }),
       
-      // single-page routes should not have sidebars
-      "/autumn/single-page": [],
-      "/winow/single-page": [],
-      "/annotations/single-page": [],
-      "/extends/single-page": [],
-      "/autumn-cli/single-page": [],
-      "/autumn-collections/single-page": [],
-      "/autumn-logos/single-page": [],
-      "/api/autumn/single-page": [],
-      "/api/annotations/single-page": [],
-      "/api/extends/single-page": [],
-      "/api/autumn-collections/single-page": [],
+      // single-page routes with custom sidebars
+      ...getSinglePageSidebars(),
       
       ...getSidebars('products/', false, 'autumn'),
       ...getSidebars('api/'),
@@ -492,4 +488,150 @@ function getProductDisplayName(productName: string): string {
   };
   
   return displayNames[cleanName] || cleanName;
+}
+
+function getSinglePageSidebars(): DefaultTheme.SidebarMulti {
+  const sidebars: DefaultTheme.SidebarMulti = {};
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  
+  // Generate sidebars for products
+  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
+  for (const dirIndex in productDirs) {
+    const dir = productDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if product has content
+    const productPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(productPath)) continue;
+    
+    const singlePageRoute = `/${cleanName}/single-page`;
+    sidebars[singlePageRoute] = generateSinglePageSidebar('products', productName, singlePageRoute);
+  }
+  
+  // Generate sidebars for APIs
+  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
+  for (const dirIndex in apiDirs) {
+    const dir = apiDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if API has content
+    const apiPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(apiPath)) continue;
+    
+    const singlePageRoute = `/api/${cleanName}/single-page`;
+    sidebars[singlePageRoute] = generateSinglePageSidebar('api', productName, singlePageRoute);
+  }
+  
+  return sidebars;
+}
+
+function generateSinglePageSidebar(sectionType: 'products' | 'api', productName: string, baseRoute: string): DefaultTheme.SidebarItem[] {
+  const sidebar: DefaultTheme.SidebarItem[] = [];
+  const basePath = `docs/${sectionType}/${productName}`;
+  
+  if (!fs.existsSync(basePath)) {
+    return sidebar;
+  }
+  
+  // Process directories in the same order as the single-page generator
+  const directories = ['getting-started', 'framework-elements', 'api', 'examples', 'guides', 'reference'];
+  
+  for (const dirName of directories) {
+    const dirPath = path.join(basePath, dirName);
+    if (!fs.existsSync(dirPath)) continue;
+    
+    const dirItems = processSinglePageDirectory(dirPath, baseRoute);
+    if (dirItems.length > 0) {
+      // Get directory title
+      let dirTitle = dirName;
+      if (dirName === 'getting-started') {
+        dirTitle = 'Начало работы';
+      } else if (dirName === 'framework-elements') {
+        dirTitle = 'Использование фреймворка';
+      } else if (dirName === 'api') {
+        dirTitle = 'API';
+      } else {
+        dirTitle = getPageName(dirName);
+      }
+      
+      sidebar.push({
+        text: dirTitle,
+        items: dirItems,
+        collapsed: false
+      });
+    }
+  }
+  
+  // Also process any files in the root directory
+  const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
+  if (rootItems.length > 0) {
+    sidebar.unshift(...rootItems);
+  }
+  
+  return sidebar;
+}
+
+function processSinglePageDirectory(directory: string, baseRoute: string, rootOnly: boolean = false): DefaultTheme.SidebarItem[] {
+  const items: DefaultTheme.SidebarItem[] = [];
+  
+  if (!fs.existsSync(directory)) {
+    return items;
+  }
+  
+  const files = fs.readdirSync(directory, { withFileTypes: true });
+  
+  // Process markdown files
+  const markdownFiles = files
+    .filter(item => item.isFile() && item.name.endsWith('.md') && item.name !== 'index.md')
+    .map(item => item.name)
+    .sort();
+  
+  for (const filename of markdownFiles) {
+    // Skip certain files that are typically excluded from single pages
+    if (filename.includes('changelog') || filename.includes('end')) continue;
+    
+    const filePath = path.join(directory, filename);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const { data: frontmatter } = matter(content);
+    
+    const title = frontmatter.title || getPageName(filename.replace('.md', ''));
+    
+    // Create proper anchor for the title
+    const anchor = title.toLowerCase()
+      .replace(/[^\wа-яё\s-]/g, '') // Keep Cyrillic characters
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+      .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+    
+    items.push({
+      text: title,
+      link: `${baseRoute}#${anchor}`
+    });
+  }
+  
+  // Process subdirectories recursively if not rootOnly
+  if (!rootOnly) {
+    const subdirs = files
+      .filter(item => item.isDirectory() && !item.name.startsWith('.'))
+      .map(item => item.name)
+      .sort();
+    
+    for (const subdir of subdirs) {
+      const subdirPath = path.join(directory, subdir);
+      const subdirItems = processSinglePageDirectory(subdirPath, baseRoute);
+      
+      if (subdirItems.length > 0) {
+        items.push({
+          text: getPageName(subdir),
+          items: subdirItems,
+          collapsed: false
+        });
+      }
+    }
+  }
+  
+  return items;
 }
