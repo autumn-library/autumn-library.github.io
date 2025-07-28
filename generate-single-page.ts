@@ -187,18 +187,35 @@ function createSinglePageDocumentation(sectionType: 'products' | 'api', productN
   }
   
   // Create frontmatter for single page
-  const frontmatter = {
-    title: `${getProductDisplayName(productName)} - Полная документация`,
-    description: `Это единая страница с полной документацией по ${getProductDisplayName(productName)}.`
-  };
+  let frontmatter: any;
+  let pageTitle: string;
+  
+  if (sectionType === 'api') {
+    // For API pages, use a more specific title without duplication
+    pageTitle = `API ${getProductDisplayName(productName)}`;
+    frontmatter = {
+      title: pageTitle,
+      description: `Полный API справочник для ${getProductDisplayName(productName)}.`
+    };
+  } else {
+    // For product pages, use the original format
+    pageTitle = `${getProductDisplayName(productName)} - Полная документация`;
+    frontmatter = {
+      title: pageTitle,
+      description: `Это единая страница с полной документацией по ${getProductDisplayName(productName)}.`
+    };
+  }
   
   let singlePageContent = '---\n';
   singlePageContent += `title: "${frontmatter.title}"\n`;
   singlePageContent += `description: "${frontmatter.description}"\n`;
   singlePageContent += '---\n\n';
   
-  singlePageContent += `# ${frontmatter.title}\n\n`;
-  singlePageContent += `${frontmatter.description}\n\n`;
+  // Only add the main title for product pages, not API pages
+  if (sectionType !== 'api') {
+    singlePageContent += `# ${frontmatter.title}\n\n`;
+    singlePageContent += `${frontmatter.description}\n\n`;
+  }
   
   // Process and combine all files without TOC or extra section titles
   for (const file of allFiles) {
@@ -318,4 +335,151 @@ if (import.meta.url === `file://${process.argv[1]}`) {
   main();
 }
 
-export { createSinglePageDocumentation };
+function createSinglePageToggleDocumentation(sectionType: 'products' | 'api', productName: string): void {
+  const basePath = `docs/${sectionType}/${productName}`;
+  
+  if (!fs.existsSync(basePath)) {
+    console.error(`Error: Directory ${basePath} does not exist`);
+    return;
+  }
+  
+  // Get all markdown files recursively
+  const allFiles = processAllFilesRecursively(basePath);
+  
+  if (allFiles.length === 0) {
+    console.log(`No markdown files found in ${basePath}`);
+    return;
+  }
+  
+  // Create frontmatter for single page
+  let frontmatter: any;
+  let pageTitle: string;
+  
+  if (sectionType === 'api') {
+    // For API pages, use a more specific title without duplication
+    pageTitle = `API ${getProductDisplayName(productName)}`;
+    frontmatter = {
+      title: pageTitle,
+      description: `Полный API справочник для ${getProductDisplayName(productName)}.`
+    };
+  } else {
+    // For product pages, use the original format
+    pageTitle = `${getProductDisplayName(productName)} - Полная документация`;
+    frontmatter = {
+      title: pageTitle,
+      description: `Это единая страница с полной документацией по ${getProductDisplayName(productName)}.`
+    };
+  }
+  
+  let singlePageContent = '---\n';
+  singlePageContent += `title: "${frontmatter.title}"\n`;
+  singlePageContent += `description: "${frontmatter.description}"\n`;
+  singlePageContent += '---\n\n';
+  
+  // Only add the main title for product pages, not API pages
+  if (sectionType !== 'api') {
+    singlePageContent += `# ${frontmatter.title}\n\n`;
+    singlePageContent += `${frontmatter.description}\n\n`;
+  }
+  
+  // Process and combine all files without TOC or extra section titles
+  for (const file of allFiles) {
+    // Adjust content
+    let processedContent = adjustImagePaths(file.content, productName, sectionType);
+    processedContent = adjustHeadingLevels(processedContent, 0); // Don't adjust heading levels
+    
+    // Add the content directly without extra section titles
+    singlePageContent += processedContent;
+    singlePageContent += '\n\n---\n\n';
+  }
+  
+  // Remove the last separator
+  singlePageContent = singlePageContent.replace(/\n\n---\n\n$/, '\n');
+  
+  // Generate output filename for toggle mode structure
+  let outputPath: string;
+  
+  if (sectionType === 'api') {
+    // For API: /single-page/api/product-name.md
+    const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+    const apiDir = `docs/single-page/api`;
+    if (!fs.existsSync(apiDir)) {
+      fs.mkdirSync(apiDir, { recursive: true });
+    }
+    outputPath = `${apiDir}/${displayName}.md`;
+  } else {
+    // For products: /single-page/product-name.md
+    const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+    const singlePageDir = `docs/single-page`;
+    if (!fs.existsSync(singlePageDir)) {
+      fs.mkdirSync(singlePageDir, { recursive: true });
+    }
+    outputPath = `${singlePageDir}/${displayName}.md`;
+  }
+  
+  // Write the single page file
+  fs.writeFileSync(outputPath, singlePageContent, 'utf-8');
+  
+  console.log(`Single-page toggle documentation generated: ${outputPath}`);
+  console.log(`Total files combined: ${allFiles.length}`);
+  console.log(`Total content size: ${Math.round(singlePageContent.length / 1024)}KB`);
+}
+
+function generateAllToggleSinglePages(): void {
+  console.log('Generating single-page toggle documentation for all products and APIs...');
+  
+  const sections: ('products' | 'api')[] = ['products', 'api'];
+  
+  for (const sectionType of sections) {
+    const sectionPath = `docs/${sectionType}`;
+    
+    if (!fs.existsSync(sectionPath)) continue;
+    
+    const products = fs.readdirSync(sectionPath)
+      .filter(item => {
+        const itemPath = path.join(sectionPath, item);
+        return fs.lstatSync(itemPath).isDirectory() || fs.lstatSync(itemPath).isSymbolicLink();
+      });
+    
+    for (const productName of products) {
+      const productPath = path.join(sectionPath, productName);
+      
+      // Check if product has markdown content
+      if (hasMarkdownContent(productPath)) {
+        try {
+          createSinglePageToggleDocumentation(sectionType, productName);
+        } catch (error) {
+          console.warn(`Failed to generate toggle single-page for ${sectionType}/${productName}: ${error.message}`);
+        }
+      }
+    }
+  }
+  
+  console.log('Single-page toggle documentation generation complete.');
+}
+
+function hasMarkdownContent(directory: string): boolean {
+  if (!fs.existsSync(directory)) return false;
+  
+  const items = fs.readdirSync(directory, { withFileTypes: true });
+  
+  // Check for markdown files in current directory
+  const markdownFiles = items.filter(item => 
+    item.isFile() && item.name.endsWith('.md')
+  );
+  
+  // Has content if there are any markdown files
+  if (markdownFiles.length > 0) return true;
+  
+  // Check subdirectories recursively
+  const hasSubdirContent = items.some(item => {
+    if (item.isDirectory() && !item.name.startsWith('.')) {
+      return hasMarkdownContent(path.join(directory, item.name));
+    }
+    return false;
+  });
+  
+  return hasSubdirContent;
+}
+
+export { createSinglePageDocumentation, createSinglePageToggleDocumentation, generateAllToggleSinglePages };

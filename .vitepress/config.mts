@@ -589,9 +589,6 @@ function processSinglePageDirectory(directory: string, baseRoute: string, rootOn
     .sort();
   
   for (const filename of markdownFiles) {
-    // Skip certain files that are typically excluded from single pages
-    if (filename.includes('changelog') || filename.includes('end')) continue;
-    
     const filePath = path.join(directory, filename);
     const content = fs.readFileSync(filePath, 'utf-8');
     const { data: frontmatter } = matter(content);
