@@ -700,10 +700,10 @@ function generateSinglePageSidebar(sectionType: 'products' | 'api', productName:
       }
     }
     
-    // Also process any files in the root directory
+    // Process any files in the root directory
     const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
     if (rootItems.length > 0) {
-      sidebar.unshift(...rootItems);
+      sidebar.push(...rootItems);
     }
   }
   
