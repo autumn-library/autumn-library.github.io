@@ -63,13 +63,15 @@ function generateMissingSinglePages(): void {
     for (const productName of products) {
       const productPath = path.join(sectionPath, productName);
       
-      // Determine output path using new URL structure
-      const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+      // Determine output path based on fixed structure
       let outputPath: string;
       
       if (sectionType === 'api') {
-        outputPath = `docs/api/${displayName}/single-page.md`;
+        // API files go in the original structure
+        outputPath = `${productPath}/single-page.md`;
       } else {
+        // Product files go in the clean name structure (bypass products/ rewrites)
+        const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
         outputPath = `docs/${displayName}/single-page.md`;
       }
       

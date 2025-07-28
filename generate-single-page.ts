@@ -214,19 +214,18 @@ function createSinglePageDocumentation(sectionType: 'products' | 'api', productN
   // Remove the last separator
   singlePageContent = singlePageContent.replace(/\n\n---\n\n$/, '\n');
   
-  // Generate output filename using new URL structure
-  const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
+  // Generate output filename using correct file structure
+  // Files need to be placed in the source structure to work with VitePress rewrites
   let outputPath: string;
   
   if (sectionType === 'api') {
-    // Create directory structure for /api/product-name/single-page
-    const apiDir = `docs/api/${displayName}`;
-    if (!fs.existsSync(apiDir)) {
-      fs.mkdirSync(apiDir, { recursive: true });
-    }
-    outputPath = `${apiDir}/single-page.md`;
+    // For API: place in docs/api/000-product/single-page.md 
+    // This will be accessible at /api/product/single-page after rewrites
+    outputPath = `${basePath}/single-page.md`;
   } else {
-    // Create directory structure for /product-name/single-page
+    // For products: place in docs/product-name/single-page.md (bypass products/ rewrites)
+    // This will be accessible at /product-name/single-page
+    const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
     const productDir = `docs/${displayName}`;
     if (!fs.existsSync(productDir)) {
       fs.mkdirSync(productDir, { recursive: true });
