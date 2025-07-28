@@ -641,45 +641,76 @@ function generateSinglePageSidebar(sectionType: 'products' | 'api', productName:
     return sidebar;
   }
   
-  // Process directories in the same order as the single-page generator
-  const directories = ['getting-started', 'framework-elements', 'api', 'examples', 'guides', 'reference'];
-  
-  for (const dirName of directories) {
-    const dirPath = path.join(basePath, dirName);
-    if (!fs.existsSync(dirPath)) continue;
+  // For API documentation, get all actual directories instead of predefined ones
+  if (sectionType === 'api') {
+    const items = fs.readdirSync(basePath, { withFileTypes: true });
+    const directories = items
+      .filter(item => item.isDirectory() && !item.name.startsWith('.'))
+      .map(item => item.name)
+      .sort();
     
-    const dirItems = processSinglePageDirectory(dirPath, baseRoute);
-    if (dirItems.length > 0) {
-      // Get directory title
-      let dirTitle = dirName;
-      if (dirName === 'getting-started') {
-        dirTitle = 'Начало работы';
-      } else if (dirName === 'framework-elements') {
-        dirTitle = 'Использование фреймворка';
-      } else if (dirName === 'api') {
-        dirTitle = 'API';
-      } else {
-        dirTitle = getPageName(dirName);
-      }
+    for (const dirName of directories) {
+      const dirPath = path.join(basePath, dirName);
+      const dirItems = processSinglePageDirectory(dirPath, baseRoute);
       
-      sidebar.push({
-        text: dirTitle,
-        items: dirItems,
-        collapsed: false
-      });
+      if (dirItems.length > 0) {
+        // Remove number prefix and clean up directory name for title
+        const dirTitle = getPageName(dirName);
+        
+        sidebar.push({
+          text: dirTitle,
+          items: dirItems,
+          collapsed: false
+        });
+      }
     }
-  }
-  
-  // Also process any files in the root directory
-  const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
-  if (rootItems.length > 0) {
-    sidebar.unshift(...rootItems);
+    
+    // For API, also process root files but skip index.md to avoid broken links
+    const rootItems = processSinglePageDirectory(basePath, baseRoute, true, true); // skipIndex = true
+    if (rootItems.length > 0) {
+      sidebar.unshift(...rootItems);
+    }
+  } else {
+    // For products, use the predefined directories
+    const directories = ['getting-started', 'framework-elements', 'api', 'examples', 'guides', 'reference'];
+    
+    for (const dirName of directories) {
+      const dirPath = path.join(basePath, dirName);
+      if (!fs.existsSync(dirPath)) continue;
+      
+      const dirItems = processSinglePageDirectory(dirPath, baseRoute);
+      if (dirItems.length > 0) {
+        // Get directory title
+        let dirTitle = dirName;
+        if (dirName === 'getting-started') {
+          dirTitle = 'Начало работы';
+        } else if (dirName === 'framework-elements') {
+          dirTitle = 'Использование фреймворка';
+        } else if (dirName === 'api') {
+          dirTitle = 'API';
+        } else {
+          dirTitle = getPageName(dirName);
+        }
+        
+        sidebar.push({
+          text: dirTitle,
+          items: dirItems,
+          collapsed: false
+        });
+      }
+    }
+    
+    // Also process any files in the root directory
+    const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
+    if (rootItems.length > 0) {
+      sidebar.unshift(...rootItems);
+    }
   }
   
   return sidebar;
 }
 
-function processSinglePageDirectory(directory: string, baseRoute: string, rootOnly: boolean = false): DefaultTheme.SidebarItem[] {
+function processSinglePageDirectory(directory: string, baseRoute: string, rootOnly: boolean = false, skipIndex: boolean = false): DefaultTheme.SidebarItem[] {
   const items: DefaultTheme.SidebarItem[] = [];
   
   if (!fs.existsSync(directory)) {
@@ -690,7 +721,11 @@ function processSinglePageDirectory(directory: string, baseRoute: string, rootOn
   
   // Process markdown files
   const markdownFiles = files
-    .filter(item => item.isFile() && item.name.endsWith('.md') && item.name !== 'index.md')
+    .filter(item => {
+      if (!item.isFile() || !item.name.endsWith('.md')) return false;
+      if (item.name === 'index.md' && (skipIndex || !skipIndex)) return false; // Always skip index.md for sidebar generation
+      return true;
+    })
     .map(item => item.name)
     .sort();
   

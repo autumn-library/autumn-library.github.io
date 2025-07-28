@@ -14,7 +14,7 @@ function extractOrderFromFilename(filename: string): number {
   return match ? parseInt(match[1], 10) : 999;
 }
 
-function processMarkdownFiles(directory: string): MarkdownFile[] {
+function processMarkdownFiles(directory: string, sectionType?: 'products' | 'api'): MarkdownFile[] {
   const files: MarkdownFile[] = [];
   
   if (!fs.existsSync(directory)) {
@@ -26,8 +26,18 @@ function processMarkdownFiles(directory: string): MarkdownFile[] {
   
   for (const filename of dirFiles) {
     if (filename.endsWith('.md')) {
-      // Skip index.md only if there are other markdown files
-      if (filename === 'index.md' && markdownFiles.length > 1) {
+      // Skip single-page.md files to avoid self-inclusion
+      if (filename === 'single-page.md') {
+        continue;
+      }
+      
+      // For API documentation, always skip index.md to avoid broken links
+      if (filename === 'index.md' && sectionType === 'api') {
+        continue;
+      }
+      
+      // For products, skip index.md only if there are other markdown files
+      if (filename === 'index.md' && sectionType === 'products' && markdownFiles.length > 1) {
         continue;
       }
       
@@ -47,7 +57,7 @@ function processMarkdownFiles(directory: string): MarkdownFile[] {
   return files.sort((a, b) => a.order - b.order);
 }
 
-function processAllFilesRecursively(directory: string, baseDir: string = ''): MarkdownFile[] {
+function processAllFilesRecursively(directory: string, baseDir: string = '', sectionType?: 'products' | 'api'): MarkdownFile[] {
   const allFiles: MarkdownFile[] = [];
   
   if (!fs.existsSync(directory)) {
@@ -57,7 +67,7 @@ function processAllFilesRecursively(directory: string, baseDir: string = ''): Ma
   const items = fs.readdirSync(directory, { withFileTypes: true });
   
   // First, process files in current directory
-  const files = processMarkdownFiles(directory);
+  const files = processMarkdownFiles(directory, sectionType);
   allFiles.push(...files);
   
   // Then, process subdirectories recursively with proper ordering
@@ -74,7 +84,7 @@ function processAllFilesRecursively(directory: string, baseDir: string = ''): Ma
     if (subDir === 'index' || subDir.startsWith('.')) continue;
     
     const subDirPath = path.join(directory, subDir);
-    const subFiles = processAllFilesRecursively(subDirPath, path.join(baseDir, subDir));
+    const subFiles = processAllFilesRecursively(subDirPath, path.join(baseDir, subDir), sectionType);
     allFiles.push(...subFiles);
   }
   
@@ -179,7 +189,7 @@ function createSinglePageDocumentation(sectionType: 'products' | 'api', productN
   }
   
   // Get all markdown files recursively
-  const allFiles = processAllFilesRecursively(basePath);
+  const allFiles = processAllFilesRecursively(basePath, '', sectionType);
   
   if (allFiles.length === 0) {
     console.log(`No markdown files found in ${basePath}`);
@@ -344,7 +354,7 @@ function createSinglePageToggleDocumentation(sectionType: 'products' | 'api', pr
   }
   
   // Get all markdown files recursively
-  const allFiles = processAllFilesRecursively(basePath);
+  const allFiles = processAllFilesRecursively(basePath, '', sectionType);
   
   if (allFiles.length === 0) {
     console.log(`No markdown files found in ${basePath}`);
