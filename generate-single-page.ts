@@ -11,6 +11,12 @@ interface MarkdownFile {
 
 function extractOrderFromFilename(filename: string): number {
   const match = filename.match(/^(\d+)-/);
+  
+  // For API sections, prioritize index.md to appear first
+  if (filename === 'index.md') {
+    return -1; // Highest priority (comes first)
+  }
+  
   return match ? parseInt(match[1], 10) : 999;
 }
 
@@ -31,8 +37,9 @@ function processMarkdownFiles(directory: string, sectionType?: 'products' | 'api
         continue;
       }
       
-      // For API documentation, always skip index.md to avoid broken links
-      if (filename === 'index.md' && sectionType === 'api') {
+      // For API documentation, include index.md at the beginning for table of contents
+      // For products, skip index.md only if there are other markdown files
+      if (filename === 'index.md' && sectionType === 'products' && markdownFiles.length > 1) {
         continue;
       }
       

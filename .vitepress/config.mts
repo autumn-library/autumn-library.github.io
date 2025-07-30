@@ -665,52 +665,102 @@ function generateSinglePageSidebar(sectionType: 'products' | 'api', productName:
       }
     }
     
-    // For API, also process root files but skip index.md to avoid broken links
-    const rootItems = processSinglePageDirectory(basePath, baseRoute, true, true); // skipIndex = true
+    // For API, also process root files including index.md
+    const rootItems = processSinglePageDirectory(basePath, baseRoute, true, false); // includeIndex = true
     if (rootItems.length > 0) {
       sidebar.unshift(...rootItems);
     }
   } else {
-    // For products, use the predefined directories
-    const directories = ['getting-started', 'framework-elements', 'api', 'examples', 'guides', 'reference'];
+    // For products, check if this is a single-file product (only has index.md)
+    const items = fs.readdirSync(basePath, { withFileTypes: true });
+    const markdownFiles = items.filter(item => item.isFile() && item.name.endsWith('.md') && item.name !== 'single-page.md');
+    const directories = items.filter(item => item.isDirectory() && !item.name.startsWith('.'));
     
-    for (const dirName of directories) {
-      const dirPath = path.join(basePath, dirName);
-      if (!fs.existsSync(dirPath)) continue;
+    // If only has index.md and no subdirectories, generate sidebar from content headings
+    if (markdownFiles.length === 1 && markdownFiles[0].name === 'index.md' && directories.length === 0) {
+      const indexPath = path.join(basePath, 'index.md');
+      const sidebarFromHeadings = generateSidebarFromHeadings(indexPath, baseRoute);
+      sidebar.push(...sidebarFromHeadings);
+    } else {
+      // For products with multiple files/directories, use the predefined directories
+      const predefinedDirs = ['getting-started', 'framework-elements', 'api', 'examples', 'guides', 'reference'];
       
-      const dirItems = processSinglePageDirectory(dirPath, baseRoute);
-      if (dirItems.length > 0) {
-        // Get directory title
-        let dirTitle = dirName;
-        if (dirName === 'getting-started') {
-          dirTitle = 'Начало работы';
-        } else if (dirName === 'framework-elements') {
-          dirTitle = 'Использование фреймворка';
-        } else if (dirName === 'api') {
-          dirTitle = 'API';
-        } else {
-          dirTitle = getPageName(dirName);
-        }
+      for (const dirName of predefinedDirs) {
+        const dirPath = path.join(basePath, dirName);
+        if (!fs.existsSync(dirPath)) continue;
         
-        sidebar.push({
-          text: dirTitle,
-          items: dirItems,
-          collapsed: false
-        });
+        const dirItems = processSinglePageDirectory(dirPath, baseRoute);
+        if (dirItems.length > 0) {
+          // Get directory title
+          let dirTitle = dirName;
+          if (dirName === 'getting-started') {
+            dirTitle = 'Начало работы';
+          } else if (dirName === 'framework-elements') {
+            dirTitle = 'Использование фреймворка';
+          } else if (dirName === 'api') {
+            dirTitle = 'API';
+          } else {
+            dirTitle = getPageName(dirName);
+          }
+          
+          sidebar.push({
+            text: dirTitle,
+            items: dirItems,
+            collapsed: false
+          });
+        }
       }
-    }
-    
-    // Process any files in the root directory
-    const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
-    if (rootItems.length > 0) {
-      sidebar.push(...rootItems);
+      
+      // Process any files in the root directory
+      const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
+      if (rootItems.length > 0) {
+        sidebar.push(...rootItems);
+      }
     }
   }
   
   return sidebar;
 }
 
-function processSinglePageDirectory(directory: string, baseRoute: string, rootOnly: boolean = false, skipIndex: boolean = false): DefaultTheme.SidebarItem[] {
+function generateSidebarFromHeadings(filePath: string, baseRoute: string): DefaultTheme.SidebarItem[] {
+  const items: DefaultTheme.SidebarItem[] = [];
+  
+  if (!fs.existsSync(filePath)) {
+    return items;
+  }
+  
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const { content: markdownContent } = matter(content);
+  
+  // Extract headings (h1-h6) from markdown content
+  const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+  let match;
+  
+  while ((match = headingRegex.exec(markdownContent)) !== null) {
+    const level = match[1].length; // Number of # characters
+    const text = match[2].trim();
+    
+    // Skip h1 headings as they are typically page titles
+    if (level === 1) continue;
+    
+    // Create proper anchor for the heading
+    const anchor = text.toLowerCase()
+      .replace(/[^\wа-яё\s-]/g, '') // Keep Cyrillic characters
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+      .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+    
+    items.push({
+      text: text,
+      link: `${baseRoute}#${anchor}`
+    });
+  }
+  
+  return items;
+}
+
+function processSinglePageDirectory(directory: string, baseRoute: string, rootOnly: boolean = false, includeIndex: boolean = false): DefaultTheme.SidebarItem[] {
   const items: DefaultTheme.SidebarItem[] = [];
   
   if (!fs.existsSync(directory)) {
@@ -723,7 +773,7 @@ function processSinglePageDirectory(directory: string, baseRoute: string, rootOn
   const markdownFiles = files
     .filter(item => {
       if (!item.isFile() || !item.name.endsWith('.md')) return false;
-      if (item.name === 'index.md' && (skipIndex || !skipIndex)) return false; // Always skip index.md for sidebar generation
+      if (item.name === 'index.md' && !includeIndex) return false; // Skip index.md unless explicitly included
       return true;
     })
     .map(item => item.name)
