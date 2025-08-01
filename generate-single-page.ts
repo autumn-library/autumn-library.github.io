@@ -228,11 +228,7 @@ function createSinglePageDocumentation(sectionType: 'products' | 'api', productN
   singlePageContent += `description: "${frontmatter.description}"\n`;
   singlePageContent += '---\n\n';
   
-  // Only add the main title for product pages, not API pages
-  if (sectionType !== 'api') {
-    singlePageContent += `# ${frontmatter.title}\n\n`;
-    singlePageContent += `${frontmatter.description}\n\n`;
-  }
+  // Don't add extra headers for single-page documents
   
   // Process and combine all files without TOC or extra section titles
   for (const file of allFiles) {
@@ -393,11 +389,7 @@ function createSinglePageToggleDocumentation(sectionType: 'products' | 'api', pr
   singlePageContent += `description: "${frontmatter.description}"\n`;
   singlePageContent += '---\n\n';
   
-  // Only add the main title for product pages, not API pages
-  if (sectionType !== 'api') {
-    singlePageContent += `# ${frontmatter.title}\n\n`;
-    singlePageContent += `${frontmatter.description}\n\n`;
-  }
+  // Don't add extra headers for single-page documents
   
   // Process and combine all files without TOC or extra section titles
   for (const file of allFiles) {

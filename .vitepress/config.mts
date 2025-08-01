@@ -16,6 +16,13 @@ export default defineConfig({
     }
   },
 
+  buildStart(siteConfig) {
+    // Generate single-page documentation for all products and APIs during dev if missing
+    generateAllSinglePages();
+    // Generate toggle mode single-page documentation
+    generateAllToggleSinglePages();
+  },
+
   buildEnd(siteConfig) {
     // Generate single-page documentation for all products and APIs
     generateAllSinglePages();
@@ -156,7 +163,17 @@ export default defineConfig({
     ],
 
     sidebar: {
-      // products
+      // toggle mode single-page routes (most specific first)
+      ...getToggleModeSidebars(),
+      
+      // single-page routes with custom sidebars
+      ...getSinglePageSidebars(),
+      
+      // product routes
+      ...getSidebars('products/', false, 'autumn'),
+      ...getSidebars('api/'),
+      
+      // products root (least specific last)
       "/": getSidebar({
         contentRoot: contentRoot + 'products/000-autumn/',
         contentDirs: [
@@ -166,15 +183,6 @@ export default defineConfig({
         collapsed: false,
         baseLink: ""
       }),
-      
-      // single-page routes with custom sidebars
-      ...getSinglePageSidebars(),
-      
-      // toggle mode single-page routes
-      ...getToggleModeSidebars(),
-      
-      ...getSidebars('products/', false, 'autumn'),
-      ...getSidebars('api/'),
     },
 
     socialLinks: [
@@ -640,6 +648,9 @@ function generateSinglePageSidebar(sectionType: 'products' | 'api', productName:
   if (!fs.existsSync(basePath)) {
     return sidebar;
   }
+  
+  // Get the clean product name for consistent processing
+  const cleanProductName = productName.replace(/^\d+-/, '');
   
   // For API documentation, get all actual directories instead of predefined ones
   if (sectionType === 'api') {
