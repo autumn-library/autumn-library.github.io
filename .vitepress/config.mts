@@ -162,28 +162,7 @@ export default defineConfig({
        },
     ],
 
-    sidebar: {
-      // toggle mode single-page routes (most specific first)
-      ...getToggleModeSidebars(),
-      
-      // single-page routes with custom sidebars
-      ...getSinglePageSidebars(),
-      
-      // product routes
-      ...getSidebars('products/', false, 'autumn'),
-      ...getSidebars('api/'),
-      
-      // products root (least specific last)
-      "/": getSidebar({
-        contentRoot: contentRoot + 'products/000-autumn/',
-        contentDirs: [
-          { text: 'Начало работы', dir: 'getting-started' },
-          { text: 'Использование фреймворка', dir: 'framework-elements' },
-        ],
-        collapsed: false,
-        baseLink: ""
-      }),
-    },
+    sidebar: generateAllSidebarConfigurations(),
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/autumn-library/autumn' },
@@ -833,4 +812,58 @@ function processSinglePageDirectory(directory: string, baseRoute: string, rootOn
   }
   
   return items;
+}
+
+function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
+  const sidebarConfig: DefaultTheme.SidebarMulti = {};
+  
+  // First add toggle mode single-page routes (most specific)
+  const toggleSidebars = getToggleModeSidebars();
+  Object.assign(sidebarConfig, toggleSidebars);
+  
+  // Then add regular single-page routes
+  const singlePageSidebars = getSinglePageSidebars();
+  Object.assign(sidebarConfig, singlePageSidebars);
+  
+  // Add product routes
+  const productSidebars = getSidebars('products/', false, 'autumn');
+  Object.assign(sidebarConfig, productSidebars);
+  
+  // Add API routes
+  const apiSidebars = getSidebars('api/');
+  Object.assign(sidebarConfig, apiSidebars);
+  
+  // Add specific autumn framework routes
+  sidebarConfig["/getting-started/"] = getSidebar({
+    contentRoot: contentRoot + 'products/000-autumn/',
+    contentDirs: [
+      { text: 'Начало работы', dir: 'getting-started' },
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
+    ],
+    collapsed: false,
+    baseLink: ""
+  });
+  
+  sidebarConfig["/framework-elements/"] = getSidebar({
+    contentRoot: contentRoot + 'products/000-autumn/',
+    contentDirs: [
+      { text: 'Начало работы', dir: 'getting-started' },
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
+    ],
+    collapsed: false,
+    baseLink: ""
+  });
+  
+  // Finally add the root catch-all (least specific)
+  sidebarConfig["/"] = getSidebar({
+    contentRoot: contentRoot + 'products/000-autumn/',
+    contentDirs: [
+      { text: 'Начало работы', dir: 'getting-started' },
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
+    ],
+    collapsed: false,
+    baseLink: ""
+  });
+  
+  return sidebarConfig;
 }
