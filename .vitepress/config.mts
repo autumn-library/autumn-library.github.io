@@ -817,24 +817,40 @@ function processSinglePageDirectory(directory: string, baseRoute: string, rootOn
 function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
   const sidebarConfig: DefaultTheme.SidebarMulti = {};
   
-  // First add toggle mode single-page routes (most specific)
+  // Get all individual sidebar configurations
   const toggleSidebars = getToggleModeSidebars();
-  Object.assign(sidebarConfig, toggleSidebars);
-  
-  // Then add regular single-page routes
   const singlePageSidebars = getSinglePageSidebars();
-  Object.assign(sidebarConfig, singlePageSidebars);
-  
-  // Add product routes
   const productSidebars = getSidebars('products/', false, 'autumn');
-  Object.assign(sidebarConfig, productSidebars);
-  
-  // Add API routes
   const apiSidebars = getSidebars('api/');
-  Object.assign(sidebarConfig, apiSidebars);
   
-  // Add specific autumn framework routes
-  sidebarConfig["/getting-started/"] = getSidebar({
+  // Create ordered array of sidebar entries from most specific to least specific
+  const sidebarEntries: [string, any][] = [];
+  
+  // 1. Toggle mode single-page routes (most specific)
+  for (const [route, sidebar] of Object.entries(toggleSidebars)) {
+    sidebarEntries.push([route, sidebar]);
+  }
+  
+  // 2. Regular single-page routes (very specific)
+  for (const [route, sidebar] of Object.entries(singlePageSidebars)) {
+    sidebarEntries.push([route, sidebar]);
+  }
+  
+  // 3. Specific longer product and API routes first (autumn-collections before autumn)
+  const allRoutes = [
+    ...Object.entries(productSidebars),
+    ...Object.entries(apiSidebars)
+  ];
+  
+  // Sort by route length (descending) to ensure longer/more specific routes come first
+  allRoutes.sort(([routeA], [routeB]) => routeB.length - routeA.length);
+  
+  for (const [route, sidebar] of allRoutes) {
+    sidebarEntries.push([route, sidebar]);
+  }
+  
+  // 4. Add specific autumn framework routes
+  sidebarEntries.push(["/getting-started/", getSidebar({
     contentRoot: contentRoot + 'products/000-autumn/',
     contentDirs: [
       { text: 'Начало работы', dir: 'getting-started' },
@@ -842,9 +858,9 @@ function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
     ],
     collapsed: false,
     baseLink: ""
-  });
+  })]);
   
-  sidebarConfig["/framework-elements/"] = getSidebar({
+  sidebarEntries.push(["/framework-elements/", getSidebar({
     contentRoot: contentRoot + 'products/000-autumn/',
     contentDirs: [
       { text: 'Начало работы', dir: 'getting-started' },
@@ -852,10 +868,10 @@ function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
     ],
     collapsed: false,
     baseLink: ""
-  });
+  })]);
   
-  // Finally add the root catch-all (least specific)
-  sidebarConfig["/"] = getSidebar({
+  // 5. Finally add the root catch-all (least specific)
+  sidebarEntries.push(["/", getSidebar({
     contentRoot: contentRoot + 'products/000-autumn/',
     contentDirs: [
       { text: 'Начало работы', dir: 'getting-started' },
@@ -863,7 +879,12 @@ function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
     ],
     collapsed: false,
     baseLink: ""
-  });
+  })]);
+  
+  // Build the final configuration maintaining order
+  for (const [route, sidebar] of sidebarEntries) {
+    sidebarConfig[route] = sidebar;
+  }
   
   return sidebarConfig;
 }
