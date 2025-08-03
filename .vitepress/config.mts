@@ -28,6 +28,14 @@ export default defineConfig({
     generateAllSinglePages();
     // Generate toggle mode single-page documentation
     generateAllToggleSinglePages();
+    
+    // Create .nojekyll file for GitHub Pages
+    const distPath = path.join(process.cwd(), '.vitepress', 'dist');
+    const nojekyllPath = path.join(distPath, '.nojekyll');
+    if (!fs.existsSync(nojekyllPath)) {
+      fs.writeFileSync(nojekyllPath, '');
+      console.log('Created .nojekyll file for GitHub Pages');
+    }
   },
 
   transformPageData(pageData, ctx) {
