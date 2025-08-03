@@ -3,6 +3,7 @@ import { glob } from 'glob';
 import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
+import { createSinglePageDocumentation, generateAllToggleSinglePages } from '../generate-single-page.ts';
 
 const contentRoot = 'docs/';
 
@@ -13,6 +14,20 @@ export default defineConfig({
     resolve: {
       preserveSymlinks: true
     }
+  },
+
+  buildStart(siteConfig) {
+    // Generate single-page documentation for all products and APIs during dev if missing
+    generateAllSinglePages();
+    // Generate toggle mode single-page documentation
+    generateAllToggleSinglePages();
+  },
+
+  buildEnd(siteConfig) {
+    // Generate single-page documentation for all products and APIs
+    generateAllSinglePages();
+    // Generate toggle mode single-page documentation
+    generateAllToggleSinglePages();
   },
 
   transformPageData(pageData, ctx) {
@@ -37,6 +52,14 @@ export default defineConfig({
     }
     
     const repoData = repositoriesMap.get(repoName);
+
+    // Disable outline for single-page documentation
+    if (pageData.relativePath && 
+        (pageData.relativePath.endsWith('/single-page.md') || 
+         pageData.relativePath.includes('single-page/'))) {
+      pageData.frontmatter = pageData.frontmatter || {};
+      pageData.frontmatter.outline = false;
+    }
 
     return {
       params: {
@@ -72,6 +95,16 @@ export default defineConfig({
   //base: "/docs",
 
   rewrites(id) {
+    // Handle single-page mode routes first
+    if (id.includes('single-page/api/')) {
+      // Convert docs/single-page/api/autumn.md -> /single-page/api/autumn
+      return id;
+    }
+    if (id.includes('single-page/')) {
+      // Convert docs/single-page/autumn.md -> /single-page/autumn  
+      return id;
+    }
+    
     return id
       .replace(/\d+-/g, '')                 // удаление префикса сортировки
       .replaceAll('\\', '/')               // замена обратных виндовых слешей на прямые
@@ -91,7 +124,14 @@ export default defineConfig({
 
   },
 
-  ignoreDeadLinks: 'localhostLinks',
+  ignoreDeadLinks: [
+    'localhostLinks',
+    (url: string, context?: string) => {
+      // Ignore all dead links in single-page documentation and localhost links
+      if (url && url.startsWith('http://localhost')) return true;
+      return (context && context.includes('single-page')) || (url && url.includes('%D0%'));
+    }
+  ],
 
   themeConfig: {
     // https://vitepress.dev/reference/default-theme-config
@@ -113,22 +153,16 @@ export default defineConfig({
           ...getNavBarItems('api/'),
         ]
        },
+      { 
+        text: 'Одностраничный режим',
+        items: [
+          { text: 'Документация', items: getToggleModeNavItems().products },
+          { text: 'API', items: getToggleModeNavItems().api },
+        ]
+       },
     ],
 
-    sidebar: {
-      // products
-      "/": getSidebar({
-        contentRoot: contentRoot + 'products/000-autumn/',
-        contentDirs: [
-          { text: 'Начало работы', dir: 'getting-started' },
-          { text: 'Использование фреймворка', dir: 'framework-elements' },
-        ],
-        collapsed: false,
-        baseLink: ""
-      }),
-      ...getSidebars('products/', false, 'autumn'),
-      ...getSidebars('api/'),
-    },
+    sidebar: generateAllSidebarConfigurations(),
 
     socialLinks: [
       { icon: 'github', link: 'https://github.com/autumn-library/autumn' },
@@ -358,4 +392,499 @@ function getNavBarItems(contentDir: string, appendNavBarWithContentDir: boolean 
 
   return navBarItems;
 
+}
+
+function getDynamicSinglePageNavItems(sectionType: 'products' | 'api'): DefaultTheme.NavItemWithLink[] {
+  const navBarItems: DefaultTheme.NavItemWithLink[] = [];
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  const contentDir = `${sectionType}/`;
+
+  const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
+
+  for (const dirIndex in dirs) {
+    const dir = dirs[dirIndex];
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    const displayName = getPageName(productName, false);
+    
+    // Skip if no content exists
+    const productPath = path.join(cwd, dir);
+    if (!fs.existsSync(productPath)) continue;
+    
+    // Check if there are any markdown files in the product directory
+    const hasContent = hasMarkdownContent(productPath);
+    if (!hasContent) continue;
+    
+    const text = `${displayName} (одна страница)`;
+    
+    // New URL structure: /product-name/single-page or /api/product-name/single-page
+    let link: string;
+    if (sectionType === 'api') {
+      link = `/api/${cleanName}/single-page`;
+    } else {
+      link = `/${cleanName}/single-page`;
+    }
+
+    navBarItems.push({ text, link });
+  }
+
+  return navBarItems;
+}
+
+function hasMarkdownContent(directory: string): boolean {
+  if (!fs.existsSync(directory)) return false;
+  
+  const items = fs.readdirSync(directory, { withFileTypes: true });
+  
+  // Check for markdown files in current directory
+  const markdownFiles = items.filter(item => 
+    item.isFile() && item.name.endsWith('.md')
+  );
+  
+  // Has content if there are any markdown files
+  if (markdownFiles.length > 0) return true;
+  
+  // Check subdirectories recursively
+  const hasSubdirContent = items.some(item => {
+    if (item.isDirectory() && !item.name.startsWith('.')) {
+      return hasMarkdownContent(path.join(directory, item.name));
+    }
+    return false;
+  });
+  
+  return hasSubdirContent;
+}
+
+function generateAllSinglePages(): void {
+  console.log('Generating single-page documentation for all products and APIs...');
+  
+  const sections: ('products' | 'api')[] = ['products', 'api'];
+  
+  for (const sectionType of sections) {
+    const sectionPath = `docs/${sectionType}`;
+    
+    if (!fs.existsSync(sectionPath)) continue;
+    
+    const products = fs.readdirSync(sectionPath)
+      .filter(item => {
+        const itemPath = path.join(sectionPath, item);
+        return fs.lstatSync(itemPath).isDirectory() || fs.lstatSync(itemPath).isSymbolicLink();
+      });
+    
+    for (const productName of products) {
+      const productPath = path.join(sectionPath, productName);
+      
+      // Check if product has markdown content
+      if (hasMarkdownContent(productPath)) {
+        try {
+          createSinglePageDocumentation(sectionType, productName);
+        } catch (error) {
+          console.warn(`Failed to generate single-page for ${sectionType}/${productName}: ${error.message}`);
+        }
+      }
+    }
+  }
+  
+  console.log('Single-page documentation generation complete.');
+}
+
+function getProductDisplayName(productName: string): string {
+  // Remove number prefix and capitalize
+  const cleanName = productName.replace(/^\d+-/, '');
+  
+  // Special cases for display names
+  const displayNames: { [key: string]: string } = {
+    'autumn': 'autumn',
+    'winow': 'winow',
+    'annotations': 'annotations',
+    'extends': 'extends', 
+    'autumn-cli': 'autumn-cli',
+    'autumn-collections': 'autumn-collections',
+    'autumn-logos': 'autumn-logos'
+  };
+  
+  return displayNames[cleanName] || cleanName;
+}
+
+function getSinglePageSidebars(): DefaultTheme.SidebarMulti {
+  const sidebars: DefaultTheme.SidebarMulti = {};
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  
+  // Generate sidebars for products
+  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
+  for (const dirIndex in productDirs) {
+    const dir = productDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if product has content
+    const productPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(productPath)) continue;
+    
+    const singlePageRoute = `/${cleanName}/single-page`;
+    sidebars[singlePageRoute] = generateSinglePageSidebar('products', productName, singlePageRoute);
+  }
+  
+  // Generate sidebars for APIs
+  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
+  for (const dirIndex in apiDirs) {
+    const dir = apiDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if API has content
+    const apiPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(apiPath)) continue;
+    
+    const singlePageRoute = `/api/${cleanName}/single-page`;
+    sidebars[singlePageRoute] = generateSinglePageSidebar('api', productName, singlePageRoute);
+  }
+  
+  return sidebars;
+}
+
+function getToggleModeNavItems(): { products: DefaultTheme.NavItemWithLink[], api: DefaultTheme.NavItemWithLink[] } {
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  const productItems: DefaultTheme.NavItemWithLink[] = [];
+  const apiItems: DefaultTheme.NavItemWithLink[] = [];
+  
+  // Generate navigation for products in toggle mode
+  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
+  for (const dirIndex in productDirs) {
+    const dir = productDirs[dirIndex];
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    const displayName = getPageName(productName, false);
+    
+    // Check if product has content
+    const productPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(productPath)) continue;
+    
+    const link = `/single-page/${cleanName}`;
+    productItems.push({ text: displayName, link });
+  }
+  
+  // Generate navigation for APIs in toggle mode
+  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
+  for (const dirIndex in apiDirs) {
+    const dir = apiDirs[dirIndex];
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    const displayName = getPageName(productName, false);
+    
+    // Check if API has content
+    const apiPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(apiPath)) continue;
+    
+    const link = `/single-page/api/${cleanName}`;
+    apiItems.push({ text: displayName, link });
+  }
+  
+  return { products: productItems, api: apiItems };
+}
+
+function getToggleModeSidebars(): DefaultTheme.SidebarMulti {
+  const sidebars: DefaultTheme.SidebarMulti = {};
+  const cwd = `${process.cwd()}/${contentRoot}`;
+  
+  // Generate sidebars for products in toggle mode
+  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
+  for (const dirIndex in productDirs) {
+    const dir = productDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if product has content
+    const productPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(productPath)) continue;
+    
+    const toggleRoute = `/single-page/${cleanName}`;
+    sidebars[toggleRoute] = generateSinglePageSidebar('products', productName, toggleRoute);
+  }
+  
+  // Generate sidebars for APIs in toggle mode
+  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
+  for (const dirIndex in apiDirs) {
+    const dir = apiDirs[dirIndex].replaceAll('\\', '/');
+    const productName = path.basename(dir);
+    const cleanName = productName.replace(/^\d+-/, '');
+    
+    // Check if API has content
+    const apiPath = path.join(cwd, dir);
+    if (!hasMarkdownContent(apiPath)) continue;
+    
+    const toggleRoute = `/single-page/api/${cleanName}`;
+    sidebars[toggleRoute] = generateSinglePageSidebar('api', productName, toggleRoute);
+  }
+  
+  return sidebars;
+}
+
+function generateSinglePageSidebar(sectionType: 'products' | 'api', productName: string, baseRoute: string): DefaultTheme.SidebarItem[] {
+  const sidebar: DefaultTheme.SidebarItem[] = [];
+  const basePath = `docs/${sectionType}/${productName}`;
+  
+  if (!fs.existsSync(basePath)) {
+    return sidebar;
+  }
+  
+  // Get the clean product name for consistent processing
+  const cleanProductName = productName.replace(/^\d+-/, '');
+  
+  // For API documentation, get all actual directories instead of predefined ones
+  if (sectionType === 'api') {
+    const items = fs.readdirSync(basePath, { withFileTypes: true });
+    const directories = items
+      .filter(item => item.isDirectory() && !item.name.startsWith('.'))
+      .map(item => item.name)
+      .sort();
+    
+    for (const dirName of directories) {
+      const dirPath = path.join(basePath, dirName);
+      const dirItems = processSinglePageDirectory(dirPath, baseRoute);
+      
+      if (dirItems.length > 0) {
+        // Remove number prefix and clean up directory name for title
+        const dirTitle = getPageName(dirName);
+        
+        sidebar.push({
+          text: dirTitle,
+          items: dirItems,
+          collapsed: false
+        });
+      }
+    }
+    
+    // For API, also process root files including index.md
+    const rootItems = processSinglePageDirectory(basePath, baseRoute, true, false); // includeIndex = true
+    if (rootItems.length > 0) {
+      sidebar.unshift(...rootItems);
+    }
+  } else {
+    // For products, check if this is a single-file product (only has index.md)
+    const items = fs.readdirSync(basePath, { withFileTypes: true });
+    const markdownFiles = items.filter(item => item.isFile() && item.name.endsWith('.md') && item.name !== 'single-page.md');
+    const directories = items.filter(item => item.isDirectory() && !item.name.startsWith('.'));
+    
+    // If only has index.md and no subdirectories, generate sidebar from content headings
+    if (markdownFiles.length === 1 && markdownFiles[0].name === 'index.md' && directories.length === 0) {
+      const indexPath = path.join(basePath, 'index.md');
+      const sidebarFromHeadings = generateSidebarFromHeadings(indexPath, baseRoute);
+      sidebar.push(...sidebarFromHeadings);
+    } else {
+      // For products with multiple files/directories, use the predefined directories
+      const predefinedDirs = ['getting-started', 'framework-elements', 'api', 'examples', 'guides', 'reference'];
+      
+      for (const dirName of predefinedDirs) {
+        const dirPath = path.join(basePath, dirName);
+        if (!fs.existsSync(dirPath)) continue;
+        
+        const dirItems = processSinglePageDirectory(dirPath, baseRoute);
+        if (dirItems.length > 0) {
+          // Get directory title
+          let dirTitle = dirName;
+          if (dirName === 'getting-started') {
+            dirTitle = 'Начало работы';
+          } else if (dirName === 'framework-elements') {
+            dirTitle = 'Использование фреймворка';
+          } else if (dirName === 'api') {
+            dirTitle = 'API';
+          } else {
+            dirTitle = getPageName(dirName);
+          }
+          
+          sidebar.push({
+            text: dirTitle,
+            items: dirItems,
+            collapsed: false
+          });
+        }
+      }
+      
+      // Process any files in the root directory
+      const rootItems = processSinglePageDirectory(basePath, baseRoute, true);
+      if (rootItems.length > 0) {
+        sidebar.push(...rootItems);
+      }
+    }
+  }
+  
+  return sidebar;
+}
+
+function generateSidebarFromHeadings(filePath: string, baseRoute: string): DefaultTheme.SidebarItem[] {
+  const items: DefaultTheme.SidebarItem[] = [];
+  
+  if (!fs.existsSync(filePath)) {
+    return items;
+  }
+  
+  const content = fs.readFileSync(filePath, 'utf-8');
+  const { content: markdownContent } = matter(content);
+  
+  // Extract headings (h1-h6) from markdown content
+  const headingRegex = /^(#{1,6})\s+(.+)$/gm;
+  let match;
+  
+  while ((match = headingRegex.exec(markdownContent)) !== null) {
+    const level = match[1].length; // Number of # characters
+    const text = match[2].trim();
+    
+    // Skip h1 headings as they are typically page titles
+    if (level === 1) continue;
+    
+    // Create proper anchor for the heading
+    const anchor = text.toLowerCase()
+      .replace(/[^\wа-яё\s-]/g, '') // Keep Cyrillic characters
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+      .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+    
+    items.push({
+      text: text,
+      link: `${baseRoute}#${anchor}`
+    });
+  }
+  
+  return items;
+}
+
+function processSinglePageDirectory(directory: string, baseRoute: string, rootOnly: boolean = false, includeIndex: boolean = false): DefaultTheme.SidebarItem[] {
+  const items: DefaultTheme.SidebarItem[] = [];
+  
+  if (!fs.existsSync(directory)) {
+    return items;
+  }
+  
+  const files = fs.readdirSync(directory, { withFileTypes: true });
+  
+  // Process markdown files
+  const markdownFiles = files
+    .filter(item => {
+      if (!item.isFile() || !item.name.endsWith('.md')) return false;
+      if (item.name === 'index.md' && !includeIndex) return false; // Skip index.md unless explicitly included
+      return true;
+    })
+    .map(item => item.name)
+    .sort();
+  
+  for (const filename of markdownFiles) {
+    const filePath = path.join(directory, filename);
+    const content = fs.readFileSync(filePath, 'utf-8');
+    const { data: frontmatter } = matter(content);
+    
+    const title = frontmatter.title || getPageName(filename.replace('.md', ''));
+    
+    // Create proper anchor for the title
+    const anchor = title.toLowerCase()
+      .replace(/[^\wа-яё\s-]/g, '') // Keep Cyrillic characters
+      .replace(/\s+/g, '-')
+      .replace(/-+/g, '-')
+      .trim()
+      .replace(/^-|-$/g, ''); // Remove leading/trailing dashes
+    
+    items.push({
+      text: title,
+      link: `${baseRoute}#${anchor}`
+    });
+  }
+  
+  // Process subdirectories recursively if not rootOnly
+  if (!rootOnly) {
+    const subdirs = files
+      .filter(item => item.isDirectory() && !item.name.startsWith('.'))
+      .map(item => item.name)
+      .sort();
+    
+    for (const subdir of subdirs) {
+      const subdirPath = path.join(directory, subdir);
+      const subdirItems = processSinglePageDirectory(subdirPath, baseRoute);
+      
+      if (subdirItems.length > 0) {
+        items.push({
+          text: getPageName(subdir),
+          items: subdirItems,
+          collapsed: false
+        });
+      }
+    }
+  }
+  
+  return items;
+}
+
+function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
+  const sidebarConfig: DefaultTheme.SidebarMulti = {};
+  
+  // Get all individual sidebar configurations
+  const toggleSidebars = getToggleModeSidebars();
+  const singlePageSidebars = getSinglePageSidebars();
+  const productSidebars = getSidebars('products/', false, 'autumn');
+  const apiSidebars = getSidebars('api/');
+  
+  // Create ordered array of sidebar entries from most specific to least specific
+  const sidebarEntries: [string, any][] = [];
+  
+  // 1. Toggle mode single-page routes (most specific)
+  for (const [route, sidebar] of Object.entries(toggleSidebars)) {
+    sidebarEntries.push([route, sidebar]);
+  }
+  
+  // 2. Regular single-page routes (very specific)
+  for (const [route, sidebar] of Object.entries(singlePageSidebars)) {
+    sidebarEntries.push([route, sidebar]);
+  }
+  
+  // 3. Specific longer product and API routes first (autumn-collections before autumn)
+  const allRoutes = [
+    ...Object.entries(productSidebars),
+    ...Object.entries(apiSidebars)
+  ];
+  
+  // Sort by route length (descending) to ensure longer/more specific routes come first
+  allRoutes.sort(([routeA], [routeB]) => routeB.length - routeA.length);
+  
+  for (const [route, sidebar] of allRoutes) {
+    sidebarEntries.push([route, sidebar]);
+  }
+  
+  // 4. Add specific autumn framework routes
+  sidebarEntries.push(["/getting-started/", getSidebar({
+    contentRoot: contentRoot + 'products/000-autumn/',
+    contentDirs: [
+      { text: 'Начало работы', dir: 'getting-started' },
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
+    ],
+    collapsed: false,
+    baseLink: ""
+  })]);
+  
+  sidebarEntries.push(["/framework-elements/", getSidebar({
+    contentRoot: contentRoot + 'products/000-autumn/',
+    contentDirs: [
+      { text: 'Начало работы', dir: 'getting-started' },
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
+    ],
+    collapsed: false,
+    baseLink: ""
+  })]);
+  
+  // 5. Finally add the root catch-all (least specific)
+  sidebarEntries.push(["/", getSidebar({
+    contentRoot: contentRoot + 'products/000-autumn/',
+    contentDirs: [
+      { text: 'Начало работы', dir: 'getting-started' },
+      { text: 'Использование фреймворка', dir: 'framework-elements' },
+    ],
+    collapsed: false,
+    baseLink: ""
+  })]);
+  
+  // Build the final configuration maintaining order
+  for (const [route, sidebar] of sidebarEntries) {
+    sidebarConfig[route] = sidebar;
+  }
+  
+  return sidebarConfig;
 }

@@ -7,7 +7,9 @@
   },
   "scripts": {
     "sync": "tsx ./syncRepositories.ts",
-    "docs:dev": "vitepress dev",
+    "generate-single-page": "tsx ./generate-single-page.ts",
+    "generate-missing-single-pages": "tsx ./generate-missing-single-pages.ts",
+    "docs:dev": "npm run generate-missing-single-pages && vitepress dev",
     "docs:build": "vitepress build",
     "docs:preview": "vitepress preview"
   },
