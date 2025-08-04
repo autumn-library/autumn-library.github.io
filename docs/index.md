@@ -115,6 +115,11 @@ features:
     icon: 🛡️
     link: https://github.com/infina15/oproxy
     linkText: Документация
+  - title: curlone
+    details: "Конвертер команды curl в код на языке 1С"
+    icon: 🦅
+    link: https://github.com/alei1180/curlone
+    linkText: Документация
   # - title: ""
   #   details: "To be continued..."
   #   icon: ⏳️
