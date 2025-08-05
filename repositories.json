@@ -26,5 +26,9 @@
     {
         "organization": "autumn-library",
         "repository": "autumn-logos"
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "autumn-data"
     }
 ]
