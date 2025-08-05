@@ -3,7 +3,7 @@ import { glob } from 'glob';
 import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
-import { createSinglePageDocumentation, generateAllToggleSinglePages } from '../generate-single-page.ts';
+import { createSinglePageToggleDocumentation, generateAllToggleSinglePages } from '../generate-single-page.ts';
 
 const contentRoot = 'docs/';
 
@@ -17,15 +17,11 @@ export default defineConfig({
   },
 
   buildStart(siteConfig) {
-    // Generate single-page documentation for all products and APIs during dev if missing
-    generateAllSinglePages();
-    // Generate toggle mode single-page documentation
+    // Generate toggle mode single-page documentation during dev if missing
     generateAllToggleSinglePages();
   },
 
   buildEnd(siteConfig) {
-    // Generate single-page documentation for all products and APIs
-    generateAllSinglePages();
     // Generate toggle mode single-page documentation
     generateAllToggleSinglePages();
     
@@ -402,42 +398,7 @@ function getNavBarItems(contentDir: string, appendNavBarWithContentDir: boolean 
 
 }
 
-function getDynamicSinglePageNavItems(sectionType: 'products' | 'api'): DefaultTheme.NavItemWithLink[] {
-  const navBarItems: DefaultTheme.NavItemWithLink[] = [];
-  const cwd = `${process.cwd()}/${contentRoot}`;
-  const contentDir = `${sectionType}/`;
 
-  const dirs = glob.sync(`${contentDir}/*/`, { cwd }).sort();
-
-  for (const dirIndex in dirs) {
-    const dir = dirs[dirIndex];
-    const productName = path.basename(dir);
-    const cleanName = productName.replace(/^\d+-/, '');
-    const displayName = getPageName(productName, false);
-    
-    // Skip if no content exists
-    const productPath = path.join(cwd, dir);
-    if (!fs.existsSync(productPath)) continue;
-    
-    // Check if there are any markdown files in the product directory
-    const hasContent = hasMarkdownContent(productPath);
-    if (!hasContent) continue;
-    
-    const text = `${displayName} (одна страница)`;
-    
-    // New URL structure: /product-name/single-page or /api/product-name/single-page
-    let link: string;
-    if (sectionType === 'api') {
-      link = `/api/${cleanName}/single-page`;
-    } else {
-      link = `/${cleanName}/single-page`;
-    }
-
-    navBarItems.push({ text, link });
-  }
-
-  return navBarItems;
-}
 
 function hasMarkdownContent(directory: string): boolean {
   if (!fs.existsSync(directory)) return false;
@@ -463,38 +424,7 @@ function hasMarkdownContent(directory: string): boolean {
   return hasSubdirContent;
 }
 
-function generateAllSinglePages(): void {
-  console.log('Generating single-page documentation for all products and APIs...');
-  
-  const sections: ('products' | 'api')[] = ['products', 'api'];
-  
-  for (const sectionType of sections) {
-    const sectionPath = `docs/${sectionType}`;
-    
-    if (!fs.existsSync(sectionPath)) continue;
-    
-    const products = fs.readdirSync(sectionPath)
-      .filter(item => {
-        const itemPath = path.join(sectionPath, item);
-        return fs.lstatSync(itemPath).isDirectory() || fs.lstatSync(itemPath).isSymbolicLink();
-      });
-    
-    for (const productName of products) {
-      const productPath = path.join(sectionPath, productName);
-      
-      // Check if product has markdown content
-      if (hasMarkdownContent(productPath)) {
-        try {
-          createSinglePageDocumentation(sectionType, productName);
-        } catch (error) {
-          console.warn(`Failed to generate single-page for ${sectionType}/${productName}: ${error.message}`);
-        }
-      }
-    }
-  }
-  
-  console.log('Single-page documentation generation complete.');
-}
+
 
 function getProductDisplayName(productName: string): string {
   // Remove number prefix and capitalize
@@ -514,42 +444,7 @@ function getProductDisplayName(productName: string): string {
   return displayNames[cleanName] || cleanName;
 }
 
-function getSinglePageSidebars(): DefaultTheme.SidebarMulti {
-  const sidebars: DefaultTheme.SidebarMulti = {};
-  const cwd = `${process.cwd()}/${contentRoot}`;
-  
-  // Generate sidebars for products
-  const productDirs = glob.sync(`products/*/`, { cwd }).sort();
-  for (const dirIndex in productDirs) {
-    const dir = productDirs[dirIndex].replaceAll('\\', '/');
-    const productName = path.basename(dir);
-    const cleanName = productName.replace(/^\d+-/, '');
-    
-    // Check if product has content
-    const productPath = path.join(cwd, dir);
-    if (!hasMarkdownContent(productPath)) continue;
-    
-    const singlePageRoute = `/${cleanName}/single-page`;
-    sidebars[singlePageRoute] = generateSinglePageSidebar('products', productName, singlePageRoute);
-  }
-  
-  // Generate sidebars for APIs
-  const apiDirs = glob.sync(`api/*/`, { cwd }).sort();
-  for (const dirIndex in apiDirs) {
-    const dir = apiDirs[dirIndex].replaceAll('\\', '/');
-    const productName = path.basename(dir);
-    const cleanName = productName.replace(/^\d+-/, '');
-    
-    // Check if API has content
-    const apiPath = path.join(cwd, dir);
-    if (!hasMarkdownContent(apiPath)) continue;
-    
-    const singlePageRoute = `/api/${cleanName}/single-page`;
-    sidebars[singlePageRoute] = generateSinglePageSidebar('api', productName, singlePageRoute);
-  }
-  
-  return sidebars;
-}
+
 
 function getToggleModeNavItems(): { products: DefaultTheme.NavItemWithLink[], api: DefaultTheme.NavItemWithLink[] } {
   const cwd = `${process.cwd()}/${contentRoot}`;
@@ -827,7 +722,6 @@ function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
   
   // Get all individual sidebar configurations
   const toggleSidebars = getToggleModeSidebars();
-  const singlePageSidebars = getSinglePageSidebars();
   const productSidebars = getSidebars('products/', false, 'autumn');
   const apiSidebars = getSidebars('api/');
   
@@ -839,12 +733,7 @@ function generateAllSidebarConfigurations(): DefaultTheme.SidebarMulti {
     sidebarEntries.push([route, sidebar]);
   }
   
-  // 2. Regular single-page routes (very specific)
-  for (const [route, sidebar] of Object.entries(singlePageSidebars)) {
-    sidebarEntries.push([route, sidebar]);
-  }
-  
-  // 3. Specific longer product and API routes first (autumn-collections before autumn)
+  // 2. Specific longer product and API routes first (autumn-collections before autumn)
   const allRoutes = [
     ...Object.entries(productSidebars),
     ...Object.entries(apiSidebars)

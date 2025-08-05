@@ -1,6 +1,6 @@
 import fs from 'fs';
 import path from 'path';
-import { createSinglePageDocumentation, createSinglePageToggleDocumentation } from './generate-single-page.ts';
+import { createSinglePageToggleDocumentation } from './generate-single-page.ts';
 
 function hasMarkdownContent(directory: string): boolean {
   if (!fs.existsSync(directory)) return false;
@@ -63,32 +63,15 @@ function generateMissingSinglePages(): void {
     for (const productName of products) {
       const productPath = path.join(sectionPath, productName);
       
-      // Determine output paths for both original and toggle modes
-      let outputPath: string;
+      // Determine output path for toggle mode only
       let toggleOutputPath: string;
       
       if (sectionType === 'api') {
-        // API files go in the original structure
-        outputPath = `${productPath}/single-page.md`;
-        // Toggle mode files
         const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
         toggleOutputPath = `docs/single-page/api/${displayName}.md`;
       } else {
-        // Product files go in the clean name structure (bypass products/ rewrites)
         const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
-        outputPath = `docs/${displayName}/single-page.md`;
-        // Toggle mode files
         toggleOutputPath = `docs/single-page/${displayName}.md`;
-      }
-      
-      // Generate original single-page if missing
-      if (!fs.existsSync(outputPath) && hasMarkdownContent(productPath)) {
-        try {
-          createSinglePageDocumentation(sectionType, productName);
-          console.log(`Generated missing single-page: ${outputPath}`);
-        } catch (error) {
-          console.warn(`Failed to generate single-page for ${sectionType}/${productName}: ${error.message}`);
-        }
       }
       
       // Generate toggle mode single-page if missing

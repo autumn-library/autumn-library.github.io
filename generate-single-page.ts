@@ -187,89 +187,7 @@ function generateTableOfContents(files: MarkdownFile[]): string {
   return toc + '\n';
 }
 
-function createSinglePageDocumentation(sectionType: 'products' | 'api', productName: string): void {
-  const basePath = `docs/${sectionType}/${productName}`;
-  
-  if (!fs.existsSync(basePath)) {
-    console.error(`Error: Directory ${basePath} does not exist`);
-    return;
-  }
-  
-  // Get all markdown files recursively
-  const allFiles = processAllFilesRecursively(basePath, '', sectionType);
-  
-  if (allFiles.length === 0) {
-    console.log(`No markdown files found in ${basePath}`);
-    return;
-  }
-  
-  // Create frontmatter for single page
-  let frontmatter: any;
-  let pageTitle: string;
-  
-  if (sectionType === 'api') {
-    // For API pages, use a more specific title without duplication
-    pageTitle = `API ${getProductDisplayName(productName)}`;
-    frontmatter = {
-      title: pageTitle,
-      description: `Полный API справочник для ${getProductDisplayName(productName)}.`
-    };
-  } else {
-    // For product pages, use the original format
-    pageTitle = `${getProductDisplayName(productName)} - Полная документация`;
-    frontmatter = {
-      title: pageTitle,
-      description: `Это единая страница с полной документацией по ${getProductDisplayName(productName)}.`
-    };
-  }
-  
-  let singlePageContent = '---\n';
-  singlePageContent += `title: "${frontmatter.title}"\n`;
-  singlePageContent += `description: "${frontmatter.description}"\n`;
-  singlePageContent += '---\n\n';
-  
-  // Don't add extra headers for single-page documents
-  
-  // Process and combine all files without TOC or extra section titles
-  for (const file of allFiles) {
-    // Adjust content
-    let processedContent = adjustImagePaths(file.content, productName, sectionType);
-    processedContent = adjustHeadingLevels(processedContent, 0); // Don't adjust heading levels
-    
-    // Add the content directly without extra section titles
-    singlePageContent += processedContent;
-    singlePageContent += '\n\n---\n\n';
-  }
-  
-  // Remove the last separator
-  singlePageContent = singlePageContent.replace(/\n\n---\n\n$/, '\n');
-  
-  // Generate output filename using correct file structure
-  // Files need to be placed in the source structure to work with VitePress rewrites
-  let outputPath: string;
-  
-  if (sectionType === 'api') {
-    // For API: place in docs/api/000-product/single-page.md 
-    // This will be accessible at /api/product/single-page after rewrites
-    outputPath = `${basePath}/single-page.md`;
-  } else {
-    // For products: place in docs/product-name/single-page.md (bypass products/ rewrites)
-    // This will be accessible at /product-name/single-page
-    const displayName = getProductDisplayName(productName).toLowerCase().replace(/\s+/g, '-');
-    const productDir = `docs/${displayName}`;
-    if (!fs.existsSync(productDir)) {
-      fs.mkdirSync(productDir, { recursive: true });
-    }
-    outputPath = `${productDir}/single-page.md`;
-  }
-  
-  // Write the single page file
-  fs.writeFileSync(outputPath, singlePageContent, 'utf-8');
-  
-  console.log(`Single-page documentation generated: ${outputPath}`);
-  console.log(`Total files combined: ${allFiles.length}`);
-  console.log(`Total content size: ${Math.round(singlePageContent.length / 1024)}KB`);
-}
+
 
 function getProductDisplayName(productName: string): string {
   // Remove number prefix and capitalize
@@ -340,7 +258,7 @@ function main(): void {
     return;
   }
   
-  createSinglePageDocumentation(sectionType as 'products' | 'api', productName);
+  createSinglePageToggleDocumentation(sectionType as 'products' | 'api', productName);
 }
 
 // Check if this module is being run directly
@@ -491,4 +409,4 @@ function hasMarkdownContent(directory: string): boolean {
   return hasSubdirContent;
 }
 
-export { createSinglePageDocumentation, createSinglePageToggleDocumentation, generateAllToggleSinglePages };
+export { createSinglePageToggleDocumentation, generateAllToggleSinglePages };
