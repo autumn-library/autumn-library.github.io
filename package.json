@@ -1,7 +1,7 @@
 {
   "devDependencies": {
     "@types/node": "22.*",
-    "tsx": "^4.20.3",
+    "tsx": "^4.20.4",
     "typescript": "^5.9.2",
     "vitepress": "^2.0.0-alpha.10"
   },
