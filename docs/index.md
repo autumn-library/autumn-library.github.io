@@ -121,10 +121,10 @@ features:
     link: https://github.com/alei1180/curlone
     linkText: Документация
   - title: Share-bsl
-    details: "Телеграмм бот для публикации исходников на сервис gist"
+    details: "Телеграм-бот для публикации исходников на сервис GitHub Gist"
     icon: 💬
     link: https://github.com/Untru/share_bsl
-    linkText: Документация    
+    linkText: Документация
   # - title: ""
   #   details: "To be continued..."
   #   icon: ⏳️
