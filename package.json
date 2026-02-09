@@ -3,7 +3,7 @@
     "@types/node": "22.*",
     "tsx": "^4.21.0",
     "typescript": "^5.9.3",
-    "vitepress": "^2.0.0-alpha.15"
+    "vitepress": "^2.0.0-alpha.16"
   },
   "scripts": {
     "sync": "tsx ./syncRepositories.ts",
