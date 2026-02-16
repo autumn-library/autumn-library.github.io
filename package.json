@@ -14,7 +14,7 @@
     "docs:preview": "vitepress preview"
   },
   "dependencies": {
-    "glob": "^13.0.1",
+    "glob": "^13.0.3",
     "gray-matter": "^4.0.3"
   }
 }
