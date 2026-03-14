@@ -125,6 +125,11 @@ features:
     icon: 💬
     link: https://github.com/Untru/share_bsl
     linkText: Документация
+  - title: prometheus-metrics
+    details: "Веб-сервис с эндпоинтом GET /metrics для отдачи метрик в формате Prometheus."
+    icon: 📈
+    link: https://github.com/yellow-hammer/prometheus-metrics
+    linkText: Документация
   # - title: ""
   #   details: "To be continued..."
   #   icon: ⏳️
