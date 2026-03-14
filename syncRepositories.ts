@@ -29,7 +29,10 @@ function createSymlink(sourcePath: string, index: number, repoName: string, subd
         if (fs.existsSync(targetSubPath)) {
             fs.unlinkSync(targetSubPath)
         }
-        fs.symlinkSync(path.resolve(sourceSubPath), path.resolve(targetSubPath), 'dir')
+        const absSource = path.resolve(sourceSubPath)
+        const absTarget = path.resolve(targetSubPath)
+        const linkType = process.platform === 'win32' ? 'junction' : 'dir'
+        fs.symlinkSync(absSource, absTarget, linkType)
     }
 }
 
