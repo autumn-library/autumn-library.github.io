@@ -30,5 +30,9 @@
     {
         "organization": "autumn-library",
         "repository": "autumn-data"
+    },
+    {
+        "organization": "yellow-hammer",
+        "repository": "prometheus-metrics"
     }
 ]
