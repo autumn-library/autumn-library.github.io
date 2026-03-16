@@ -125,6 +125,11 @@ features:
     icon: 💬
     link: https://github.com/Untru/share_bsl
     linkText: Документация
+  - title: prometheus
+    details: Библиотека для сбора и сериализации метрик в формате Prometheus Text Format на OneScript.
+    icon: 📈
+    link: https://github.com/yellow-hammer/prometheus
+    linkText: Документация
   - title: prometheus-metrics
     details: "Веб-сервис с эндпоинтом GET /metrics для отдачи метрик в формате Prometheus."
     icon: 📈
