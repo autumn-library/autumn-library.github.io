@@ -33,6 +33,10 @@
     },
     {
         "organization": "yellow-hammer",
+        "repository": "prometheus"
+    },
+    {
+        "organization": "yellow-hammer",
         "repository": "prometheus-metrics"
     }
 ]
