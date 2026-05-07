@@ -32,6 +32,10 @@
         "repository": "autumn-data"
     },
     {
+        "organization": "autumn-library",
+        "repository": "autumn-opentelemetry"
+    },
+    {
         "organization": "yellow-hammer",
         "repository": "prometheus"
     },
