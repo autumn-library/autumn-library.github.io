@@ -38,5 +38,9 @@
     {
         "organization": "yellow-hammer",
         "repository": "prometheus-metrics"
+    },
+    {
+        "organization": "vanessa-opensource",
+        "repository": "vanessa-runner" 
     }
 ]
