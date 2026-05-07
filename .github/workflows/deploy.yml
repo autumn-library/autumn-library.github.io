@@ -5,6 +5,8 @@ on:
   workflow_dispatch:
   repository_dispatch:
     types: [deploy]
+  schedule:
+    - cron: '0 0 * * *'
 
 jobs:
   build:
