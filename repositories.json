@@ -36,6 +36,14 @@
         "repository": "autumn-opentelemetry"
     },
     {
+        "organization": "nixel2007",
+        "repository": "opentelemetry"
+    },
+    {
+        "organization": "nixel2007",
+        "repository": "opentelemetry-propagator-b3"
+    },
+    {
         "organization": "yellow-hammer",
         "repository": "prometheus"
     },
