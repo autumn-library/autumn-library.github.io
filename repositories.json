@@ -54,5 +54,9 @@
     {
         "organization": "vanessa-opensource",
         "repository": "vanessa-runner" 
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "autumn-killjoy-flavour" 
     }
 ]
