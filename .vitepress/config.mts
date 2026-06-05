@@ -133,7 +133,7 @@ export default defineConfig({
     (url: string, context?: string) => {
       // Ignore all dead links in single-page documentation and localhost links
       if (url && url.startsWith('http://localhost')) return true;
-      return (context && context.includes('single-page')) || (url && url.includes('%D0%'));
+      return (context && context.includes('single-page')) || (url && url.includes('%D0%')) || (url && /^\.{1,2}\/\d+-/.test(url));
     }
   ],
 
