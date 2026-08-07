@@ -57,6 +57,22 @@
     },
     {
         "organization": "autumn-library",
-        "repository": "autumn-killjoy-flavour" 
+        "repository": "autumn-killjoy-flavour"
+    },
+    {
+        "organization": "yellow-hammer",
+        "repository": "winow-view"
+    },
+    {
+        "organization": "yellow-hammer",
+        "repository": "autumn-openfeature"
+    },
+    {
+        "organization": "yellow-hammer",
+        "repository": "oneflag-sdk"
+    },
+    {
+        "organization": "yellow-hammer",
+        "repository": "oneflag"
     }
 ]
