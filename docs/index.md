@@ -90,6 +90,11 @@ features:
     icon: 🍷
     link: /winow
     linkText: Документация
+  - title: winow-view
+    details: "Фронт для winow без сборщика JS: заголовки htmx, фрагменты JinjOS, статика htmx и Alpine.js, защита форм CSRF."
+    icon: 🖼️
+    link: https://github.com/yellow-hammer/winow-view
+    linkText: Документация
   - title: ovm
     details: Менеджер версий OneScript на базе autumn-cli.
     icon: 🦫
@@ -134,6 +139,21 @@ features:
     details: "Веб-сервис с эндпоинтом GET /metrics для отдачи метрик в формате Prometheus."
     icon: 📈
     link: https://github.com/yellow-hammer/prometheus-metrics
+    linkText: Документация
+  - title: Autumn-openfeature
+    details: "Стартер фича-флагов OpenFeature для ОСени: провайдер поднимается по настройкам, клиент внедряется как обычная зависимость."
+    icon: 🚩
+    link: https://github.com/yellow-hammer/autumn-openfeature
+    linkText: Документация
+  - title: oneflag-sdk
+    details: "Провайдер OpenFeature для сервиса OneFlag: снимок конфигурации по HTTP, локальная оценка флагов, живое обновление по SSE."
+    icon: 🎏
+    link: https://github.com/yellow-hammer/oneflag-sdk
+    linkText: Документация
+  - title: OneFlag
+    details: "Self-hosted сервис управления фича-флагами: дашборд, REST API, живое обновление по SSE, аудит в CloudEvents."
+    icon: 🏴
+    link: https://github.com/yellow-hammer/oneflag
     linkText: Документация
   # - title: ""
   #   details: "To be continued..."
