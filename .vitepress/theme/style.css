@@ -151,4 +151,22 @@
   --docsearch-primary-color: var(--vp-c-brand-1) !important;
 }
 
+/**
+ * Component: Nav
+ * -------------------------------------------------------------------------- */
+
+/**
+ * Группы продуктов в мобильном меню.
+ *
+ * В выпадающем меню на десктопе группа отделена разделителями, а на мобильном
+ * экране тема убирает у секции рамки и отступы (.VPNavScreen .VPMenuGroup),
+ * поэтому у группы не видно конца: пункты, идущие после неё, выглядят как её
+ * содержимое. Возвращаем группе видимые границы.
+ */
+.VPNavScreen .VPMenuGroup.VPNavScreenMenuGroupSection > ul {
+  margin: 0 0 0.25rem 0.25rem;
+  border-left: 1px solid var(--vp-c-divider);
+  padding-left: 0.5rem;
+}
+
 
