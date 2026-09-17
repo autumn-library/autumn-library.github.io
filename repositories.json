@@ -74,5 +74,9 @@
     {
         "organization": "yellow-hammer",
         "repository": "oneflag"
+    },
+    {
+        "organization": "autumn-library",
+        "repository": "pipeliner"
     }
 ]
