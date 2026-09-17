@@ -1,14 +1,10 @@
 import * as fs from 'fs'
 import * as path from 'path'
 import { execSync } from 'child_process'
+import { flattenRepositories, readRepositories, type GroupedRepoData } from './repositories.ts'
 
 const SYNC_DIR = 'sync'
 const DOCS_DIR = 'docs'
-
-type RepoData = {
-    repository: string;
-    organization: string;
-  };
 
 function padNumber(num: number): string {
     return num.toString().padStart(3, '0')
@@ -45,10 +41,8 @@ function syncRepositories(): void {
         fs.mkdirSync(DOCS_DIR, { recursive: true })
     }
 
-    // Read repositories.json
-    const repoData: RepoData[] = JSON.parse(
-        fs.readFileSync('repositories.json', 'utf-8')
-    )
+    // Read repositories.json, expanding groups into a flat, ordered list
+    const repoData: GroupedRepoData[] = flattenRepositories(readRepositories())
 
     console.log(repoData);
 

@@ -32,16 +32,25 @@
         "repository": "autumn-data"
     },
     {
-        "organization": "autumn-library",
-        "repository": "autumn-opentelemetry"
-    },
-    {
-        "organization": "nixel2007",
-        "repository": "opentelemetry"
-    },
-    {
-        "organization": "nixel2007",
-        "repository": "opentelemetry-propagator-b3"
+        "group": "opentelemetry",
+        "repositories": [
+            {
+                "organization": "nixel2007",
+                "repository": "opentelemetry"
+            },
+            {
+                "organization": "nixel2007",
+                "repository": "opentelemetry-propagator-b3"
+            },
+            {
+                "organization": "nixel2007",
+                "repository": "opentelemetry-instrumentation-entity"
+            },
+            {
+                "organization": "autumn-library",
+                "repository": "autumn-opentelemetry"
+            }
+        ]
     },
     {
         "organization": "yellow-hammer",
