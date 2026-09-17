@@ -4,6 +4,7 @@ import matter from 'gray-matter';
 import fs from 'fs';
 import path from 'path';
 import { createSinglePageToggleDocumentation, generateAllToggleSinglePages } from '../generate-single-page.ts';
+import { flattenRepositories, getRepositoryGroups, groupNavItems, readRepositories, type GroupedRepoData } from '../repositories.ts';
 
 const contentRoot = 'docs/';
 
@@ -35,8 +36,8 @@ export default defineConfig({
   },
 
   transformPageData(pageData, ctx) {
-    const repositories = JSON.parse(fs.readFileSync('repositories.json', 'utf-8'));
-    const repositoriesMap: Map<string, RepoData> = new Map(repositories.map((repoData: RepoData) => [repoData.repository, repoData]));
+    const repositories = flattenRepositories(readRepositories());
+    const repositoriesMap: Map<string, GroupedRepoData> = new Map(repositories.map((repoData: GroupedRepoData) => [repoData.repository, repoData]));
 
     let repoName: string = '';
     
@@ -255,11 +256,6 @@ export default defineConfig({
   }
 })
 
-type RepoData = {
-  repository: string;
-  organization: string;
-};
-
 interface SidebarOptions {
   contentRoot: string;
   contentDirs: { text: string; dir: string; }[];
@@ -376,7 +372,7 @@ function getPageName(fileName: string, doWordsSplit: boolean = true): string {
     .join(' ');
 }
 
-function getNavBarItems(contentDir: string, appendNavBarWithContentDir: boolean = true, exclude: string = ''): DefaultTheme.NavItemWithLink[] {
+function getNavBarItems(contentDir: string, appendNavBarWithContentDir: boolean = true, exclude: string = ''): (DefaultTheme.NavItemWithLink | DefaultTheme.NavItemChildren)[] {
 
   const navBarItems: DefaultTheme.NavItemWithLink[] = [];
   const cwd = `${process.cwd()}/${contentRoot}`;
@@ -394,7 +390,8 @@ function getNavBarItems(contentDir: string, appendNavBarWithContentDir: boolean 
     navBarItems.push({ text, link });
   }
 
-  return navBarItems;
+  // Группы продуктов задаются полем group в repositories.json
+  return groupNavItems(navBarItems, getRepositoryGroups(readRepositories()));
 
 }
 

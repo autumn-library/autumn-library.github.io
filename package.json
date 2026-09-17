@@ -6,6 +6,7 @@
     "vitepress": "^2.0.0-alpha.20"
   },
   "scripts": {
+    "test": "node --import tsx --test \"tests/*.test.ts\"",
     "sync": "tsx ./syncRepositories.ts",
     "generate-single-page": "tsx ./generate-single-page.ts",
     "generate-missing-single-pages": "tsx ./generate-missing-single-pages.ts",
