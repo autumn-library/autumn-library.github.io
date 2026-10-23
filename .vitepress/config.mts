@@ -5,6 +5,7 @@ import fs from 'fs';
 import path from 'path';
 import { createSinglePageToggleDocumentation, generateAllToggleSinglePages } from '../generate-single-page.ts';
 import { flattenRepositories, getRepositoryGroups, groupNavItems, readRepositories, type GroupedRepoData } from '../repositories.ts';
+import { rewritePath, stripSortPrefixes } from '../paths.ts';
 
 const contentRoot = 'docs/';
 
@@ -99,23 +100,7 @@ export default defineConfig({
   // https://vitepress.dev/reference/site-config#base
   //base: "/docs",
 
-  rewrites(id) {
-    // Handle single-page mode routes first
-    if (id.includes('single-page/api/')) {
-      // Convert docs/single-page/api/autumn.md -> /single-page/api/autumn
-      return id;
-    }
-    if (id.includes('single-page/')) {
-      // Convert docs/single-page/autumn.md -> /single-page/autumn  
-      return id;
-    }
-    
-    return id
-      .replace(/\d+-/g, '')                 // удаление префикса сортировки
-      .replaceAll('\\', '/')               // замена обратных виндовых слешей на прямые
-      .replaceAll('products/autumn/', '')  // подмена пути products/autumn на корень
-      .replaceAll('products/', '');        // удаление префикса products
-  },
+  rewrites: rewritePath,
 
   cleanUrls: true,
 
@@ -356,7 +341,7 @@ function getSidebarItem(contentRoot, file: string, baseLink): DefaultTheme.Sideb
 
   const sidebarItem: DefaultTheme.SidebarItem = {
     text: frontmatter.title || pageName,
-    link: path.posix.join("/", baseLink, file.replace(/\d+-/g, '').replaceAll('\\', '/'))
+    link: path.posix.join("/", baseLink, stripSortPrefixes(file).replaceAll('\\', '/'))
   };
 
   return sidebarItem;
