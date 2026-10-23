@@ -47,6 +47,10 @@
                 "repository": "opentelemetry-instrumentation-entity"
             },
             {
+                "organization": "nixel2007",
+                "repository": "opentelemetry-v8-logs"
+            },
+            {
                 "organization": "autumn-library",
                 "repository": "autumn-opentelemetry"
             }
